@@ -56,7 +56,7 @@ public class BulkDataWriter {
 			}
 
 			Main.logProgress();
-			
+
 		}
 
 		try {
@@ -74,11 +74,54 @@ public class BulkDataWriter {
 	public void generateWriteSecondVotes2009(
 			List<AggregatedVote> aggregatedVoteList, String filename) {
 		FileWriter writer = initFileWriter(filename);
+		int voteId = 0;
+
+		// Create the header
+		try {
+			writer.append("id,fuerliste,abgegebenin\n");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		for (AggregatedVote aggregatedVote : aggregatedVoteList) {
 			int constituencyId = aggregatedVote.getConstituencyId();
 			String party = aggregatedVote.getParty();
 			int votes = aggregatedVote.getSecondvote2009();
+
+			// Get the candidate
+			int listId = this.getListId(constituencyId, party);
+
+			// Create the votes
+			for (int voteItr = 0; voteItr < votes; voteItr++) {
+				try {
+					writer.append(voteId + "," + listId + "," + constituencyId
+							+ "\n");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+				voteId++;
+			}
+
+			try {
+				writer.flush();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			Main.logProgress();
+
+		}
+
+		try {
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			this.connection.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -111,6 +154,44 @@ public class BulkDataWriter {
 		String query = "select " + select + " from " + from + " where "
 				+ where1 + " and " + where2 + " and " + where3 + " and "
 				+ where4 + " and " + where5 + " and " + where6;
+
+		// Connect to database
+		if (this.connection == null) {
+			establishDBConnection();
+		}
+
+		try {
+			Statement statement = this.connection.createStatement();
+			ResultSet result = statement.executeQuery(query);
+			result.next();
+			if (!result.isFirst() || !result.isLast())
+				return -1;
+
+			return result.getInt(1);
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+
+	private int getListId(int constituencyId, String party) {
+
+		// Query
+		String select = "ll.id";
+		String from = "wis_partei p, wis_bundestagswahl btwahl, wis_landesliste ll, wis_wahlkreis wk, wis_bundesland bl";
+		String where1 = "p.kurzname = \'" + party + "\'";
+		String where2 = "p.id = ll.partei";
+		String where3 = "wk.bundesland = bl.id";
+		String where4 = "ll.bundesland = bl.id";
+		String where5 = "wk.id = \'" + constituencyId + "\'";
+		String where6 = "ll.wahl = btwahl.id";
+		String where7 = "btwahl.jahr = 2009";
+
+		String query = "select " + select + " from " + from + " where "
+				+ where1 + " and " + where2 + " and " + where3 + " and "
+				+ where4 + " and " + where5 + " and " + where6 + " and "
+				+ where7;
 
 		// Connect to database
 		if (this.connection == null) {
