@@ -1,4 +1,4 @@
-package de.tum.in.dbs.project.wis.reader;
+package de.tum.in.dbs.project.wis.csvreader;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -10,34 +10,51 @@ import au.com.bytecode.opencsv.CSVReader;
 
 import de.tum.in.dbs.project.wis.model.AggregatedVote;
 
+/**
+ * The class is used to parse a csv file with aggregated votes
+ * 
+ * @author Marcus Vetter
+ * 
+ */
 public class CSVDataReader {
 
-	private CSVReader reader = null;
+	/**
+	 * Read the csv file and parse it
+	 * 
+	 * @param fileName
+	 *            name/path of the file
+	 * @param delimiter
+	 *            the delimiter used in the csv file
+	 * @return list with aggregated vote objects
+	 */
+	public static List<AggregatedVote> readCSV(String fileName, char delimiter) {
 
-	public CSVDataReader(String file, char separator) {
+		// Instantiate a csv reader
+		CSVReader reader = null;
 		try {
-			reader = new CSVReader(new FileReader(file), separator);
+			reader = new CSVReader(new FileReader(fileName), delimiter);
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
 		}
 
-	}
-
-	public List<AggregatedVote> readCSV() {
-		if (this.reader == null)
-			return null;
-
+		// Result list
 		List<AggregatedVote> resultList = new ArrayList<AggregatedVote>();
 
+		// current line
 		String[] line;
 		try {
+			// Attributes of the aggregated vote object
 			int rowItr = 0;
 			int currentConstituencyId = 0;
 			int firstVote2009 = 0;
 			int secondVote2009 = 0;
 			int firstVote2005 = 0;
 			int secondVote2005 = 0;
+
+			// List of parties
 			List<String> partyList = new ArrayList<String>();
+
+			// Parse the csv file
 			lineloop: while ((line = reader.readNext()) != null) {
 				rowItr++;
 
@@ -78,8 +95,10 @@ public class CSVDataReader {
 							&& rowItr >= CSVDataReaderConstants.VOTE_CELL
 									.getRow()) {
 
+						// Get the votes
 						switch ((colItr - CSVDataReaderConstants.PARTY_CELL
-								.getCol()) % CSVDataReaderConstants.PARTY_INTERVAL) {
+								.getCol())
+								% CSVDataReaderConstants.PARTY_INTERVAL) {
 						case 0:
 							if (cell.isEmpty()) {
 								firstVote2009 = 0;
@@ -128,6 +147,7 @@ public class CSVDataReader {
 
 				}
 			}
+			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

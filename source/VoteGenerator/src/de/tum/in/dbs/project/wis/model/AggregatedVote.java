@@ -1,31 +1,49 @@
 package de.tum.in.dbs.project.wis.model;
 
+import de.tum.in.dbs.project.wis.Mode;
+
+/**
+ * Data class for an aggregated vote
+ * 
+ * @author Marcus Vetter
+ * 
+ */
 public class AggregatedVote {
-	
-	private int constituencyId;
-	private String party;
-	private int firstvote2009;
-	private int secondvote2009;
-	private int firstvote2005;
-	private int secondvote2005;
 
 	/**
+	 * Id of the constituency
+	 */
+	private int constituencyId;
+
+	/**
+	 * Name of the party
+	 */
+	private String party;
+
+	/**
+	 * The votes [first2009, second2009, first2005, second2005]
+	 */
+	private int[] votes;
+
+	/**
+	 * Constructor to create an object with all fields
+	 * 
 	 * @param constituencyId
 	 * @param party
-	 * @param firstvote2009
-	 * @param secondvote2009
-	 * @param firstvote2005
-	 * @param secondvote2005
+	 * @param firstvotes2009
+	 * @param secondvotes2009
+	 * @param firstvotes2005
+	 * @param secondvotes2005
 	 */
-	public AggregatedVote(int constituencyId, String party, int firstvote2009,
-			int secondvote2009, int firstvote2005, int secondvote2005) {
+	public AggregatedVote(int constituencyId, String party, int firstvotes2009,
+			int secondvotes2009, int firstvotes2005, int secondvotes2005) {
 		super();
 		this.constituencyId = constituencyId;
 		this.party = party;
-		this.firstvote2009 = firstvote2009;
-		this.secondvote2009 = secondvote2009;
-		this.firstvote2005 = firstvote2005;
-		this.secondvote2005 = secondvote2005;
+		this.votes[0] = firstvotes2009;
+		this.votes[1] = secondvotes2009;
+		this.votes[2] = firstvotes2005;
+		this.votes[3] = secondvotes2005;
 	}
 
 	/**
@@ -36,14 +54,6 @@ public class AggregatedVote {
 	}
 
 	/**
-	 * @param constituencyId
-	 *            the constituencyId to set
-	 */
-	public void setConstituencyId(int constituencyId) {
-		this.constituencyId = constituencyId;
-	}
-
-	/**
 	 * @return the party
 	 */
 	public String getParty() {
@@ -51,71 +61,22 @@ public class AggregatedVote {
 	}
 
 	/**
-	 * @param party
-	 *            the party to set
+	 * 
+	 * @param mode
+	 *            {@link Mode}
+	 * @return the votes
 	 */
-	public void setParty(String party) {
-		this.party = party;
+	public int getVotes(Mode mode) {
+		switch (mode) {
+		case first2009:
+			return this.votes[0];
+		case second2009:
+			return this.votes[1];
+		case first2005:
+			return this.votes[2];
+		case second2005:
+			return this.votes[3];
+		}
+		return -1;
 	}
-
-	/**
-	 * @return the firstvote2009
-	 */
-	public int getFirstvote2009() {
-		return firstvote2009;
-	}
-
-	/**
-	 * @param firstvote2009
-	 *            the firstvote2009 to set
-	 */
-	public void setFirstvote2009(int firstvote2009) {
-		this.firstvote2009 = firstvote2009;
-	}
-
-	/**
-	 * @return the secondvote2009
-	 */
-	public int getSecondvote2009() {
-		return secondvote2009;
-	}
-
-	/**
-	 * @param secondvote2009
-	 *            the secondvote2009 to set
-	 */
-	public void setSecondvote2009(int secondvote2009) {
-		this.secondvote2009 = secondvote2009;
-	}
-
-	/**
-	 * @return the firstvote2005
-	 */
-	public int getFirstvote2005() {
-		return firstvote2005;
-	}
-
-	/**
-	 * @param firstvote2005
-	 *            the firstvote2005 to set
-	 */
-	public void setFirstvote2005(int firstvote2005) {
-		this.firstvote2005 = firstvote2005;
-	}
-
-	/**
-	 * @return the secondvote2005
-	 */
-	public int getSecondvote2005() {
-		return secondvote2005;
-	}
-
-	/**
-	 * @param secondvote2005
-	 *            the secondvote2005 to set
-	 */
-	public void setSecondvote2005(int secondvote2005) {
-		this.secondvote2005 = secondvote2005;
-	}
-
 }

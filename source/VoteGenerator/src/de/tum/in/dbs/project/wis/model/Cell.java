@@ -1,8 +1,21 @@
 package de.tum.in.dbs.project.wis.model;
 
+/**
+ * This class represents one cell in the csv files
+ * 
+ * @author Marcus Vetter
+ * 
+ */
 public class Cell {
 
+	/**
+	 * The row number
+	 */
 	private int row;
+
+	/**
+	 * The col number
+	 */
 	private int col;
 
 	/**
@@ -10,7 +23,6 @@ public class Cell {
 	 * @param col
 	 */
 	public Cell(int row, int col) {
-		super();
 		this.row = row;
 		this.col = col;
 	}
