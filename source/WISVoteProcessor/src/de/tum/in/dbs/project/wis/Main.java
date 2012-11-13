@@ -55,9 +55,15 @@ public class Main {
 
 		// Get the parameters (arguments)
 		String inputFileName = args[1];
-		String outputFileName = args[2];
-		String delimiters = args[2];
-		String table = args[3];
+		String delimiters = "";
+		String table = "";
+		String outputFileName = "";
+		if (mode == 5) {
+			delimiters = args[2];
+			table = args[3];
+		} else {
+			outputFileName = args[2];
+		}
 
 		// Check readability/writeability of files
 		if (!new File(inputFileName).canRead()) {

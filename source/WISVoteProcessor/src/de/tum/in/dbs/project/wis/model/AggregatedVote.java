@@ -23,7 +23,7 @@ public class AggregatedVote {
 	/**
 	 * The votes [first2009, second2009, first2005, second2005]
 	 */
-	private int[] votes;
+	private int[] votes = new int[4];
 
 	/**
 	 * Constructor to create an object with all fields
@@ -40,6 +40,7 @@ public class AggregatedVote {
 		super();
 		this.constituencyId = constituencyId;
 		this.party = party;
+		
 		this.votes[0] = firstvotes2009;
 		this.votes[1] = secondvotes2009;
 		this.votes[2] = firstvotes2005;
