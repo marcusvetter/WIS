@@ -6,7 +6,6 @@ import codecs
 
 
 def read_landeslisten(filename="landeslisten.csv"):
-    #fileobj = codecs.open(filename, "r", "utf-8")
     fileobj = open(filename, "r")
     csvreader = csv.reader(fileobj, delimiter=";", quotechar='"')
     landeslisten = dict()
@@ -119,7 +118,9 @@ def read_kandidaten2005(filename="wahlbewerber2005.csv"):
         jahrgang = row[2]
         partei = row[7].strip()
         if partei == 'Anderer KWV':
-            partei = 'Unab'
+            partei = 'UNABHAENGIGE'
+        if partei == 'Die Linke.':
+            partei = 'DIE LINKE'
         wahlkreis = row[8]
         land = row[9]
         if land != '':
@@ -153,16 +154,22 @@ def create_bulkload():
     f = open("import_wis_partei.csv", "w")
     id = 1
     for partei in parteien:
+        if partei == 'UNABHÄNGIGE':
+            partei = 'UNABHAENGIGE'
         f.write(u"%d;" % id)
         f.write(partei)
         f.write("\n")
         d_partei[partei] = id
         id += 1
-    f.write("%d;Unab\n" % id)
-    d_partei['Unab'] = id
+    if not d_partei.has_key('UNABHAENGIGE'):
+        f.write("%d;UNABHAENGIGE\n" % id)
+        d_partei['UNABHAENGIGE'] = id
+        d_partei['UNABHÄNGIGE'] = id
     id += 1
     for row in kand2005:
         partei = row[2]
+        if partei == 'UNABHÄNGIGE':
+            partei = 'UNABHAENGIGE'
         if not d_partei.has_key(partei):
             f.write(u"%d;" % id)
             f.write(partei)
@@ -172,6 +179,7 @@ def create_bulkload():
     f.close()
 
     d_landeslisten = dict()
+    d_landeslisten_id = dict()
     d_landeslisten_name = dict()
     # Landeslisten
     f = open("import_wis_landesliste.csv", "w")
@@ -194,6 +202,7 @@ def create_bulkload():
         f.write(land)
         f.write(";%d;%d;%d\n" % (d_partei[partei], 2, d_land[land]))
         d_landeslisten[(int(num), 2)] = id
+        d_landeslisten_id[id] = (d_partei[partei], d_land[land])
         id += 1
     for row in kand2005:
         partei = row[2]
@@ -205,6 +214,7 @@ def create_bulkload():
             f.write(land)
             f.write(";%d;%d;%d\n" % (d_partei[partei], 1, d_land[land]))
             d_landeslisten_name[(land, partei)] = id
+            d_landeslisten_id[id] = (d_partei[partei], d_land[land])
             id += 1
     f.close()
 
@@ -235,7 +245,7 @@ def create_bulkload():
         f.write(vorname)
         f.write(";")
         f.write(nachname)
-        if partei == '': partei = "Unab"
+        if partei == '': partei = "UNABHAENGIGE"
         f.write(";%d\n" % d_partei[partei])
         d_kandidat[(vorname, nachname, jahrgang)] = num
         if int(num) > idkand:
@@ -247,7 +257,7 @@ def create_bulkload():
             f.write(vorname)
             f.write(";")
             f.write(nachname)
-            if partei == '': partei = "Unab"
+            if partei == '': partei = "UNABHAENGIGE"
             f.write(";%d\n" % d_partei[partei])
             d_kandidat[(vorname, nachname, jahrgang)] = idkand 
             idkand += 1
@@ -256,15 +266,24 @@ def create_bulkload():
     kandidaturen = dict()
     # Listenkandidaten 2009
     for liste, kandidat, pos in lkand:
-        kandidaturen[int(kandidat)] = [int(kandidat), int(liste), int(pos), None]
+        kandidaturen[int(kandidat)] = [int(kandidat), int(liste), int(pos), None, None]
 
     # Direktkandidaten 2009
     for vorname, nachname, jahrgang, partei, wahlkreis in dkand:
         kandidat = d_kandidat[(vorname, nachname, jahrgang)]
         if not int(kandidat) in kandidaturen.keys():
-            kandidaturen[int(kandidat)] = [int(kandidat), None, None, int(wahlkreis)]
+            kandidaturen[int(kandidat)] = [int(kandidat), None, None, int(wahlkreis), None]
         else:
             kandidaturen[int(kandidat)][3] = int(wahlkreis)
+        if partei == '':
+            partei = "UNABHAENGIGE"
+        elif partei == 'VIOLETTEN':
+            partei = "DIE VIOLETTEN"
+        elif partei == 'Volksabst.':
+            partei = 'Volksabstimmung'
+        elif partei == 'Tierschutz':
+            partei = 'Die Tierschutzpartei'
+        kandidaturen[int(kandidat)][4] = d_partei[partei]
 
 
     f = open("import_wis_kandidatur.csv", "w")
@@ -274,23 +293,25 @@ def create_bulkload():
         kandidat = d_kandidat[(vorname, nachname, jahrgang)]
         if land != '':
             liste = d_landeslisten_name[(land, partei)]
-        f.write("%d;1;%s;%s;%s;%s\n" % (id, kandidat, liste, platz, wahlkreis))
+        f.write("%d;1;%s;%s;%s;%s;%d\n" % (id, kandidat, liste, platz, wahlkreis, d_partei[partei]))
         id += 1 
 
     # Kandidaturen 2009
     for key, val in kandidaturen.iteritems():
-        kand, liste, pos, wahlkreis = val
+        kand, liste, pos, wahlkreis, partei = val
         if wahlkreis is None: wahlkreis = ''
         if liste is None: liste = ''; pos = ''
         if liste != '':
             #liste1 = d_landeslisten[(int(liste), 1)]
             liste2 = d_landeslisten[(int(liste), 2)]
+            if partei is None:
+                partei = d_landeslisten_id[int(liste2)][0]
         else:
             #liste1 = ''
             liste2 = ''
         #f.write("%d;1;%s;%s;%s;%s\n" % (id, kand, liste1, pos, wahlkreis))
         #id += 1
-        f.write("%d;2;%s;%s;%s;%s\n" % (id, kand, liste2, pos, wahlkreis))
+        f.write("%d;2;%s;%s;%s;%s;%d\n" % (id, kand, liste2, pos, wahlkreis, partei))
         id += 1
 
     f.close()

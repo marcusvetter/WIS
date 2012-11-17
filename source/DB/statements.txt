@@ -1,0 +1,178 @@
+-- Aggregationsergebnisse berechnen
+insert into wis_zweitstimmenergebnis 
+select nextval('seq_wis_zweitstimmergebnis') sid, fuerliste, wahlkreis, anzahlstimmen , localtimestamp berechnetam, true "valid", 2 wahl
+from (select zs.fuerliste, wb.wahlkreis, count(*) anzahlstimmen 
+from wis_zweitstimme zs, wis_wahlbezirk wb 
+WHERE zs.abgegebenin = wb.id
+GROUP BY zs.fuerliste, wb.wahlkreis
+) a;
+
+
+insert into wis_erststimmenergebnis 
+select nextval('seq_wis_erststimmergebnis') sid, fuerkandidat, wahlkreis, anzahlstimmen, localtimestamp berechnetam, true "valid" , 2 wahl 
+from (
+	select es.fuerkandidat, wb.wahlkreis, count(*) anzahlstimmen
+	from wis_erststimme es, wis_wahlbezirk wb 
+	WHERE es.abgegebenin = wb.id
+	GROUP BY es.fuerkandidat, wb.wahlkreis
+) a;
+
+
+
+-------------------------------------------------
+-- Berechnung Sitzverteilung
+-------------------------------------------------
+
+create or replace view bundesland_zweitstimmenergebnisse as (
+	select wkreis.bundesland, ll.partei, sum(zserg.anzahlstimmen) as anzahlstimmen
+	from wis_zweitstimmenergebnis zserg, wis_landesliste ll, wis_wahlkreis wkreis, wis_bundestagswahl btwahl
+	where zserg.inwahlkreis = wkreis.id
+	and zserg.fuerliste = ll.id
+	and zserg.wahl = btwahl.id
+	and btwahl.jahr = 2009
+	group by wkreis.bundesland, ll.partei
+);
+
+create or replace view bundesland_zweitstimmenergebnisse_bereinigt as (
+	with prozentanteile as (
+		select partei, sum(anzahlstimmen) * 1.0 / (select sum(anzahlstimmen) from bundesland_zweitstimmenergebnisse) as prozent
+		from bundesland_zweitstimmenergebnisse
+		group by partei
+	), direktkanidaten_sum as (
+		select partei, sum(anz_direktmandate) as anz_direktmandate
+		from direktkandidaten_bundesland
+		group by partei
+	)
+	
+		select zserg.*
+		from bundesland_zweitstimmenergebnisse zserg
+			 join wis_partei p on zserg.partei = p.id
+			 join prozentanteile prozant on prozant.partei = p.id
+		     left outer join direktkanidaten_sum direkt_sum on direkt_sum.partei = p.id
+		where p.nationaleminderheit 
+		or prozant.prozent >= 0.05
+		or direkt_sum.anz_direktmandate >= 3
+);
+
+create or replace view bundesland_partei_sitze as (
+	with recursive v_stimmen as (
+		select partei, sum(anzahlstimmen) anzahlstimmen from bundesland_zweitstimmenergebnisse_bereinigt group by partei
+	)
+	, v_e as (
+		select partei, 0.5 as divisor, anzahlstimmen, cast(anzahlstimmen as double precision) / cast(0.5 as double precision) as ergebnis
+		from v_stimmen
+		union all
+		select  diverg.partei, diverg.divisor + 1.0, diverg.anzahlstimmen, cast(diverg.anzahlstimmen as double precision)/ (diverg.divisor + cast(1.0 as double precision)) as ergebnis
+		from v_stimmen zserg, v_e diverg
+		where zserg.partei = diverg.partei
+		and diverg.divisor < ((128 / (select count(*) from wis_partei)) * 598) + 1
+	),
+	v_parteisitze as (
+		--select * from (
+		select a.partei, count(*) anzahl from (
+		select e.*, row_number() over (order by e.ergebnis desc) num from v_e e 
+		order by e.ergebnis desc
+		) a where num <= 598
+		group by a.partei
+		--) b join wis_partei p on b.partei = p.id
+	),
+	v_blandverteilung as(
+	select b.partei, b.bundesland, 0.5 divisor, b.anzahlstimmen, b.anzahlstimmen/0.5 ergebnis from bundesland_zweitstimmenergebnisse_bereinigt b
+	union all
+	select b.partei, b.bundesland, v.divisor+1.0, b.anzahlstimmen, b.anzahlstimmen/(v.divisor+1.0)
+	from v_blandverteilung v, bundesland_zweitstimmenergebnisse_bereinigt b
+	where v.partei = b.partei and v.bundesland = b.bundesland
+	and v.divisor < 300
+	)
+
+	select vert.bundesland, vert.partei, count(*) sitze
+	from (
+		select a.* from (
+			select b.*, row_number() over (partition by partei order by ergebnis desc) num from v_blandverteilung b order by partei, ergebnis desc
+		) a,
+		v_parteisitze ps 
+		where a.partei = ps.partei
+		and a.num <= ps.anzahl
+	) vert
+	group by vert.partei, vert.bundesland
+	order by bundesland, partei
+);
+
+
+
+create or replace view direktkandidaten as (
+	select gewinner.wahlkreis, gewinner.kandidat, kand.partei, wkreis.bundesland
+	from (select direkt.inwahlkreis as wahlkreis, kandidaten_stimmen.fuerkandidatur as kandidat
+		  from (select eserg.inwahlkreis, max(eserg.anzahlstimmen) as anzahlstimmen
+		        from wis_erststimmenergebnis eserg, wis_bundestagswahl btwahl
+		        where eserg.wahl = btwahl.id
+		        and btwahl.jahr = 2009
+		        group by inwahlkreis) as direkt,
+			    (select fuerkandidatur, anzahlstimmen, inwahlkreis
+			     from wis_erststimmenergebnis) as kandidaten_stimmen
+		  where direkt.anzahlstimmen = kandidaten_stimmen.anzahlstimmen
+		  and direkt.inwahlkreis = kandidaten_stimmen.inwahlkreis) as gewinner,
+		  wis_kandidatur kand,
+		  wis_partei partei,
+		  wis_wahlkreis wkreis
+	where gewinner.kandidat = kand.id
+	and kand.partei = partei.id
+	and wkreis.id = gewinner.wahlkreis
+);
+
+create or replace view direktkandidaten_bundesland as (
+	select direkt.bundesland, direkt.partei, count(*) as anz_direktmandate
+	from direktkandidaten direkt
+	group by direkt.bundesland, direkt.partei
+);
+
+create or replace view bundesland_partei_listenplaetze as (
+	select zweitsitze.bundesland, zweitsitze.partei, case when zweitsitze.sitze - coalesce(direkt.anz_direktmandate, 0) < 0 then 0 else zweitsitze.sitze - coalesce(direkt.anz_direktmandate, 0) end as listenplaetze
+	from bundesland_partei_sitze zweitsitze left outer join direktkandidaten_bundesland direkt
+	on zweitsitze.partei = direkt.partei
+	and zweitsitze.bundesland = direkt.bundesland
+);
+
+create or replace view bundesland_partei_listenplaetze_ohne_direktkandidaten as (
+select bundesland, partei, kandidat, row_number() OVER (PARTITION BY bundesland, partei) as listenplatz
+from (select ll.bundesland, ll.partei, kand.id as kandidat, kand.listenplatz
+      from wis_bundestagswahl btwahl, wis_landesliste ll, wis_kandidatur kand
+      where btwahl.jahr = 2009
+      and btwahl.id = ll.wahl
+      and kand.landesliste = ll.id
+      and kand.listenplatz is not null
+      and kand.id not in (select kandidat
+                    from direktkandidaten)
+      order by ll.bundesland, ll.partei, kand.listenplatz) as a
+);
+
+create or replace view listenmandate as (
+	select lplaetze.bundesland, lplaetze.partei, lplaetze.kandidat, lplaetze.listenplatz
+	from bundesland_partei_listenplaetze anzplaetze, bundesland_partei_listenplaetze_ohne_direktkandidaten lplaetze
+	where anzplaetze.bundesland = lplaetze.bundesland
+	and anzplaetze.partei = lplaetze.partei
+	and lplaetze.listenplatz <= anzplaetze.listenplaetze
+);
+
+
+create or replace view mandate (bundesland, partei, kandidat, wahlkreis, listenplatz) as (
+	select bundesland, partei, kandidat, null, listenplatz
+	from listenmandate
+	union all
+	select bundesland, partei, kandidat, wahlkreis, null 
+	from direktkandidaten
+);
+
+create or replace view sitzverteilung as (
+	select m.partei, p.name, count(*) as sitze
+	from mandate m, wis_partei p
+	where p.id = m.partei
+	group by m.partei, p.name
+);
+
+
+create or replace view gewaehlte_bewerber (bundesland, partei, vorname, nachname, wahlkreis, listenplatz) as (
+	select bl.name, p.name, k.nachname, k.vorname, m.wahlkreis, m.listenplatz from mandate m, wis_kandidatur ktur, wis_kandidat k, wis_partei p, wis_bundesland bl
+	where m.kandidat = ktur.id and ktur.kandidat = k.id and m.partei = p.id and m.bundesland = bl.id
+	order by m.bundesland, m.partei, wahlkreis, listenplatz	
+);
