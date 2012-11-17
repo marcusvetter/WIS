@@ -24,9 +24,11 @@ public class BulkDataInserter {
 	 *            path/name of the file
 	 * @param delimiters
 	 *            the delimierts used in the csv file
+	 * @param columNames
+	 *            names of the columns
 	 */
 	public static void insertBulkData(String table, String fileName,
-			String delimiters) {
+			String delimiters, String columNames) {
 		try {
 
 			// Get the database driver and initialize the connection
@@ -36,8 +38,8 @@ public class BulkDataInserter {
 					DBConstants.DB_PASSWORD);
 
 			// Query for copying bulk data
-			String query = "COPY " + table + " FROM \'" + fileName
-					+ "\' DELIMITERS \'" + delimiters + "\' CSV";
+			String query = "COPY " + table + " (" + columNames + ") FROM \'"
+					+ fileName + "\' DELIMITERS \'" + delimiters + "\' CSV";
 
 			// Execute the query
 			Statement statement = connection.createStatement();

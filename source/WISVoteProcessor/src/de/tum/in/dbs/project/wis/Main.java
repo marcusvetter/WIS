@@ -30,6 +30,16 @@ public class Main {
 	 * 
 	 */
 	public static void main(String args[]) {
+
+		// Check length of arguments
+		if (args.length != 5) {
+			System.out.println("Invalid number of arguments.");
+			System.out.println("Aborted.");
+			System.out.println();
+			printUsage();
+			return;
+		}
+
 		// Check mode
 		int mode = -1;
 		try {
@@ -44,25 +54,40 @@ public class Main {
 			return;
 		}
 
-		// Check length of arguments
-		if ((mode == 5 && args.length != 4) || (mode != 5 && args.length != 3)) {
-			System.out.println("Invalid number of arguments.");
-			System.out.println("Aborted.");
-			System.out.println();
-			printUsage();
-			return;
-		}
-
 		// Get the parameters (arguments)
 		String inputFileName = args[1];
 		String delimiters = "";
 		String table = "";
 		String outputFileName = "";
+		int year = -1;
+		boolean generate = false;
+		String columNames = "";
+
 		if (mode == 5) {
 			delimiters = args[2];
 			table = args[3];
+			columNames = args[4];
 		} else {
 			outputFileName = args[2];
+			try {
+				year = Integer.valueOf(args[3]);
+			} catch (Exception e) {
+				System.out.println("Invalid year.");
+				System.out.println("Aborted.");
+				System.out.println();
+				printUsage();
+				return;
+			}
+			try {
+				generate = Boolean.valueOf(args[4]);
+			} catch (Exception e) {
+				System.out.println("Invalid generate flag.");
+				System.out.println("Aborted.");
+				System.out.println();
+				printUsage();
+				return;
+			}
+
 		}
 
 		// Check readability/writeability of files
@@ -85,7 +110,7 @@ public class Main {
 
 		// Star the related action
 		int count = startAction(mode, inputFileName, outputFileName, table,
-				delimiters);
+				delimiters, year, generate, columNames);
 
 		// Log
 		System.out.println("Finished generating/writing votes.");
@@ -110,10 +135,17 @@ public class Main {
 	 *            name of the table (if inserting bulk data)
 	 * @param delimiters
 	 *            delimiters (if inserting bulk data)
+	 * @param year
+	 *            year of election
+	 * @param generate
+	 *            flag, if the data should be generated
+	 * @param columNames
+	 *            name of the columns (comma separated)
 	 * @return number of processed entries
 	 */
 	private static int startAction(int mode, String inputFileName,
-			String outputFileName, String table, String delimiters) {
+			String outputFileName, String table, String delimiters, int year,
+			boolean generate, String columNames) {
 
 		// List of aggregated votes
 		List<AggregatedVote> aggregatedVoteList = null;
@@ -131,23 +163,23 @@ public class Main {
 
 		switch (mode) {
 		case 1:
-			count = CSVDataWriter.writeCSVData(Mode.first2009,
-					aggregatedVoteList, outputFileName);
+			count = CSVDataWriter.writeCSVData(Mode.first, aggregatedVoteList,
+					outputFileName, year, generate);
 			break;
 		case 2:
-			count = CSVDataWriter.writeCSVData(Mode.second2009,
-					aggregatedVoteList, outputFileName);
+			count = CSVDataWriter.writeCSVData(Mode.second, aggregatedVoteList,
+					outputFileName, year, generate);
 			break;
 		case 3:
-			count = CSVDataWriter.writeCSVData(Mode.first2005,
-					aggregatedVoteList, outputFileName);
+			count = CSVDataWriter.writeCSVData(Mode.firstprior,
+					aggregatedVoteList, outputFileName, year, generate);
 			break;
 		case 4:
-			count = CSVDataWriter.writeCSVData(Mode.second2005,
-					aggregatedVoteList, outputFileName);
+			count = CSVDataWriter.writeCSVData(Mode.secondprior,
+					aggregatedVoteList, outputFileName, year, generate);
 			break;
 		case 5:
-			BulkDataInserter.insertBulkData(table, inputFileName, delimiters);
+			BulkDataInserter.insertBulkData(table, inputFileName, delimiters, columNames);
 			break;
 		}
 
@@ -173,11 +205,14 @@ public class Main {
 	private static void printUsage() {
 		System.out.println("Usage:");
 		System.out
-				.println("1st param: '1' for generate first votes 2009, '2' for generate second votes 2009, '3' for aggregated first votes 2005, '4' for aggregated second votes 2005, '5' for inserting bulk data");
+				.println("1st param: '1' for first votes, '2' for second votes, '3' for first votes (prior period), '4' for second votes (prior period), '5' for inserting bulk data");
 		System.out.println("2nd param: Input file (csv)");
 		System.out
-				.println("3rd param: If 1st param = 1, 2, 3 or 4: Output file. If 1th param = 5: Delimiters");
-		System.out.println("4th param: If 1st param = 5: Name of table");
+				.println("3rd param: If 1st param = 1, 2, 3 or 4: Output file. If 1st param = 5: Delimiters");
+		System.out
+				.println("4th param: If 1st param = 1, 2, 3 or 4: Year of election. If 1st param = 5: Name of table");
+		System.out
+				.println("5th param: if 1st param = 1, 2, 3 or 4: Generate (true/false). If 1st param = 5: List of columns (comma separated)");
 	}
 
 }

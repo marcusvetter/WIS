@@ -46,10 +46,10 @@ public class CSVDataReader {
 			// Attributes of the aggregated vote object
 			int rowItr = 0;
 			int currentConstituencyId = 0;
-			int firstVote2009 = 0;
-			int secondVote2009 = 0;
-			int firstVote2005 = 0;
-			int secondVote2005 = 0;
+			int firstVotes = 0;
+			int secondVotes = 0;
+			int firstVotesPrior = 0;
+			int secondVotesPrior = 0;
 
 			// List of parties
 			List<String> partyList = new ArrayList<String>();
@@ -101,45 +101,45 @@ public class CSVDataReader {
 								% CSVDataReaderConstants.PARTY_INTERVAL) {
 						case 0:
 							if (cell.isEmpty()) {
-								firstVote2009 = 0;
+								firstVotes = 0;
 							} else {
-								firstVote2009 = Integer.valueOf(cell);
+								firstVotes = Integer.valueOf(cell);
 							}
 							break;
 						case 1:
 							if (cell.isEmpty()) {
-								firstVote2005 = 0;
+								firstVotesPrior = 0;
 							} else {
-								firstVote2005 = Integer.valueOf(cell);
+								firstVotesPrior = Integer.valueOf(cell);
 							}
 							break;
 						case 2:
 							if (cell.isEmpty()) {
-								secondVote2009 = 0;
+								secondVotes = 0;
 							} else {
-								secondVote2009 = Integer.valueOf(cell);
+								secondVotes = Integer.valueOf(cell);
 							}
 							break;
 						case 3:
 							if (cell.isEmpty()) {
-								secondVote2005 = 0;
+								secondVotesPrior = 0;
 							} else {
-								secondVote2005 = Integer.valueOf(cell);
+								secondVotesPrior = Integer.valueOf(cell);
 							}
 
 							// Create the aggregated vote object
 							AggregatedVote aggVote = new AggregatedVote(
 									currentConstituencyId,
-									partyList.get(partyItr), firstVote2009,
-									secondVote2009, firstVote2005,
-									secondVote2005);
+									partyList.get(partyItr), firstVotes,
+									secondVotes, firstVotesPrior,
+									secondVotesPrior);
 							resultList.add(aggVote);
 
 							// Clear the attributes
-							firstVote2009 = 0;
-							secondVote2009 = 0;
-							firstVote2005 = 0;
-							secondVote2005 = 0;
+							firstVotes = 0;
+							secondVotes = 0;
+							firstVotesPrior = 0;
+							secondVotesPrior = 0;
 							break;
 
 						}
