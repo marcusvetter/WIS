@@ -1,4 +1,7 @@
--- Aggregationsergebnisse berechnen
+-------------------------------------------------
+------- Aggregationsergebnisse berechnen --------
+-------------------------------------------------
+
 insert into wis_zweitstimmenergebnis 
 select nextval('seq_wis_zweitstimmergebnis') sid, fuerliste, wahlkreis, anzahlstimmen , localtimestamp berechnetam, true "valid", 2 wahl
 from (select zs.fuerliste, wb.wahlkreis, count(*) anzahlstimmen 
@@ -18,9 +21,8 @@ from (
 ) a;
 
 
-
 -------------------------------------------------
--- Berechnung Sitzverteilung
+----------- Berechnung Sitzverteilung -----------
 -------------------------------------------------
 
 create or replace view bundesland_zweitstimmenergebnisse as (
@@ -68,13 +70,11 @@ create or replace view bundesland_partei_sitze as (
 		and diverg.divisor < ((128 / (select count(*) from wis_partei)) * 598) + 1
 	),
 	v_parteisitze as (
-		--select * from (
 		select a.partei, count(*) anzahl from (
 		select e.*, row_number() over (order by e.ergebnis desc) num from v_e e 
 		order by e.ergebnis desc
 		) a where num <= 598
 		group by a.partei
-		--) b join wis_partei p on b.partei = p.id
 	),
 	v_blandverteilung as(
 	select b.partei, b.bundesland, 0.5 divisor, b.anzahlstimmen, b.anzahlstimmen/0.5 ergebnis from bundesland_zweitstimmenergebnisse_bereinigt b
