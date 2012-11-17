@@ -29,9 +29,7 @@ create table wis_bundestagswahl (
         id integer primary key,
         jahr integer not null unique
 );
-
-
-        
+     
 create table wis_kandidat (
 	id integer primary key,
 	vorname varchar(100) not null,
@@ -53,9 +51,9 @@ create table wis_kandidatur (
 	kandidat integer references wis_kandidat not null,
 	landesliste integer references wis_landesliste null,
 	listenplatz integer null,
-	wahlkreis integer references wis_wahlkreis null
+	wahlkreis integer references wis_wahlkreis null,
+	partei integer references wis_partei
 );
-
 
 create table wis_erststimme (
 	id integer primary key,
@@ -75,7 +73,8 @@ create table wis_erststimmenergebnis (
 	inwahlkreis integer references wis_wahlkreis not null,
 	anzahlstimmen integer not null,
 	berechnetam timestamp not null,
-	valid boolean default true
+	valid boolean default true,
+	wahl integer references wis_bundestagswahl
 );
 
 create table wis_zweitstimmenergebnis (
@@ -84,7 +83,10 @@ create table wis_zweitstimmenergebnis (
 	inwahlkreis integer references wis_wahlkreis not null,
 	anzahlstimmen integer not null,
 	berechnetam timestamp not null,
-	valid boolean default true
+	valid boolean default true,
+	wahl integer references wis_bundestagswahl
 );
 
+create sequence seq_wis_erststimmergebnis increment 1 minvalue 1 start 1;
+create sequence seq_wis_zweitstimmergebnis increment 1 minvalue 1 start 1;
 
