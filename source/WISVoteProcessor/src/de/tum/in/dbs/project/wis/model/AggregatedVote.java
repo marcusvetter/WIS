@@ -21,7 +21,7 @@ public class AggregatedVote {
 	private String party;
 
 	/**
-	 * The votes [first2009, second2009, first2005, second2005]
+	 * The votes [first, second, firstprior, secondprior]
 	 */
 	private int[] votes = new int[4];
 
@@ -30,21 +30,21 @@ public class AggregatedVote {
 	 * 
 	 * @param constituencyId
 	 * @param party
-	 * @param firstvotes2009
-	 * @param secondvotes2009
-	 * @param firstvotes2005
-	 * @param secondvotes2005
+	 * @param firstvotes
+	 * @param secondvotes
+	 * @param firstvotesprior
+	 * @param secondvotesprior
 	 */
-	public AggregatedVote(int constituencyId, String party, int firstvotes2009,
-			int secondvotes2009, int firstvotes2005, int secondvotes2005) {
+	public AggregatedVote(int constituencyId, String party, int firstvotes,
+			int secondvotes, int firstvotesprior, int secondvotesprior) {
 		super();
 		this.constituencyId = constituencyId;
 		this.party = party;
 		
-		this.votes[0] = firstvotes2009;
-		this.votes[1] = secondvotes2009;
-		this.votes[2] = firstvotes2005;
-		this.votes[3] = secondvotes2005;
+		this.votes[0] = firstvotes;
+		this.votes[1] = secondvotes;
+		this.votes[2] = firstvotesprior;
+		this.votes[3] = secondvotesprior;
 	}
 
 	/**
@@ -69,13 +69,13 @@ public class AggregatedVote {
 	 */
 	public int getVotes(Mode mode) {
 		switch (mode) {
-		case first2009:
+		case first:
 			return this.votes[0];
-		case second2009:
+		case second:
 			return this.votes[1];
-		case first2005:
+		case firstprior:
 			return this.votes[2];
-		case second2005:
+		case secondprior:
 			return this.votes[3];
 		}
 		return -1;

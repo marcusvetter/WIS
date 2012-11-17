@@ -37,12 +37,18 @@ public class CSVDataWriter {
 	 * Write the csv data
 	 * 
 	 * @param mode
+	 *            The mode {@link Mode}
 	 * @param aggregatedVoteList
+	 *            List of aggregated votes
 	 * @param outputFileName
-	 * @return
+	 *            Name/path to the output file
+	 * @param year
+	 *            year of election
+	 * @return number of generated votes
 	 */
 	public static int writeCSVData(Mode mode,
-			List<AggregatedVote> aggregatedVoteList, String outputFileName) {
+			List<AggregatedVote> aggregatedVoteList, String outputFileName,
+			int year, boolean generate) {
 		int voteId = 1;
 		try {
 
@@ -56,7 +62,7 @@ public class CSVDataWriter {
 
 				// Get the list of referenced ids (candidate or list)
 				List<Integer> referencedIdList = getReferencedIdList(mode,
-						constituencyId, party);
+						constituencyId, party, year);
 
 				// Check, if the list is empty
 				if (referencedIdList.isEmpty()) {
@@ -75,8 +81,8 @@ public class CSVDataWriter {
 					}
 				}
 
-				// Process corresponding to the mode
-				if (mode.equals(Mode.first2009) || mode.equals(Mode.second2009)) {
+				// Process
+				if (generate) {
 
 					// Iterate the votes
 					for (int voteItr = 0; voteItr < votes; voteItr++) {
@@ -98,8 +104,7 @@ public class CSVDataWriter {
 
 						voteId++;
 					}
-				} else if (mode.equals(Mode.first2005)
-						|| mode.equals(Mode.second2005)) {
+				} else {
 					int refAggregatedId;
 
 					// Take the reference, if there is only one reference
@@ -107,8 +112,7 @@ public class CSVDataWriter {
 						refAggregatedId = referencedIdList.get(0);
 
 						writer.append(voteId + ";" + refAggregatedId + ";"
-								+ constituencyId + ";" + votes + ";"
-								+ System.currentTimeMillis() + "true" + "\n");
+								+ constituencyId + ";" + votes + "\n");
 						voteId++;
 
 					} else if (referencedIdList.size() > 1) {
@@ -133,9 +137,7 @@ public class CSVDataWriter {
 							writer.append(voteId + ";"
 									+ referencedIdList.get(entry.getKey())
 									+ ";" + constituencyId + ";"
-									+ entry.getValue() + ";"
-									+ System.currentTimeMillis() + "true"
-									+ "\n");
+									+ entry.getValue() + "\n");
 							voteId++;
 						}
 					}
@@ -189,38 +191,39 @@ public class CSVDataWriter {
 	 *            the id of the constituency
 	 * @param party
 	 *            the name of the party
+	 * @param year
+	 *            year of election
 	 * @return list of referenced ids
 	 */
 	private static List<Integer> getReferencedIdList(Mode mode,
-			int constituencyId, String party) {
-
-		// Get the year
-		int year = -1;
-		if (mode.equals(Mode.first2005) || mode.equals(Mode.second2005)) {
-			year = 2005;
-		} else {
-			year = 2009;
-		}
+			int constituencyId, String party, int year) {
 
 		// The result list
 		List<Integer> resultList = new ArrayList<Integer>();
 
 		// Create the query for first, resp. second votes (candidate/listid)
 		String query = "";
-		if (mode.equals(Mode.first2005) || mode.equals(Mode.first2009)) {
+		if (mode.equals(Mode.firstprior) || mode.equals(Mode.first)) {
 			String select = "ktur.id";
-			String from = "wis_partei p, wis_kandidat k, wis_kandidatur ktur, wis_bundestagswahl btwahl";
+			String from = "wis_partei p, wis_kandidatur ktur, wis_bundestagswahl btwahl";
 			String where1 = "p.name = \'" + party + "\'";
-			String where2 = "p.id = k.partei";
-			String where3 = "k.id = ktur.kandidat";
-			String where4 = "ktur.wahlkreis = \'" + constituencyId + "\'";
-			String where5 = "ktur.wahl = btwahl.id";
-			String where6 = "btwahl.jahr = " + year;
+			String where2 = "p.id = ktur.partei";
+			String where3 = "ktur.wahlkreis = \'" + constituencyId + "\'";
+			String where4 = "ktur.wahl = btwahl.id";
+			String where5 = "btwahl.jahr = " + year;
 
 			query = "select " + select + " from " + from + " where " + where1
 					+ " and " + where2 + " and " + where3 + " and " + where4
-					+ " and " + where5 + " and " + where6;
-		} else if (mode.equals(Mode.second2005) || mode.equals(Mode.second2009)) {
+					+ " and " + where5;
+		} else if (mode.equals(Mode.secondprior) || mode.equals(Mode.second)) {
+			/*
+			 * Do a conversion of the constituency ids for the election year
+			 * 2005
+			 */
+			if (year == 2005) {
+				constituencyId = convertConstituencyId(constituencyId);
+			}
+
 			String select = "ll.id";
 			String from = "wis_partei p, wis_bundestagswahl btwahl, wis_landesliste ll, wis_wahlkreis wk, wis_bundesland bl";
 			String where1 = "p.name = \'" + party + "\'";
@@ -255,6 +258,35 @@ public class CSVDataWriter {
 			e.printStackTrace();
 		}
 		return resultList;
+	}
+
+	/**
+	 * Do a conversion of the constituency ids for the election year 2005
+	 * 
+	 * @param constituencyId
+	 * @return
+	 */
+	private static int convertConstituencyId(int constituencyId) {
+		switch (constituencyId) {
+		case 54:
+			return 55;
+		case 56:
+			return 57;
+		case 66:
+			return 67;
+		case 168:
+			return 167;
+		case 189:
+			return 188;
+		case 198:
+			return 197;
+		case 213:
+			return 212;
+		case 258:
+			return 257;
+		default:
+			return constituencyId;
+		}
 	}
 
 	/**
