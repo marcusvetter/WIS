@@ -1,0 +1,27 @@
+@(title: String, seataggregates: List[model.SeatAggregate])
+
+@scripts = {
+    <script type="text/javascript">
+	      google.load("visualization", "1", {packages:["corechart"]});
+	      google.setOnLoadCallback(drawChart);
+	      function drawChart() {
+	        var data = google.visualization.arrayToDataTable([
+	          ['Seatdistribution', 'seats'],
+				@for(seat <- seataggregates) {
+					['@seat.getParty()', @seat.getSeats()] @if(seat != seataggregates.last) {,}
+				}
+	        ]);
+	
+	        var options = {
+	          title: '@title'
+	        };
+	
+	        var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+	        chart.draw(data, options);
+	      }
+	    </script>
+}
+
+@main(title, scripts){
+	<div id="chart_div" style="width: 500px; height: 500px;"></div>
+}

@@ -1,4 +1,4 @@
-@(title: String)(content: Html)
+@(title: String, scripts: Html = Html(""))(content: Html)
 
 <!DOCTYPE html>
 
@@ -9,28 +9,8 @@
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
         <script src="@routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
         <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-	    <script type="text/javascript">
-	      google.load("visualization", "1", {packages:["corechart"]});
-	      google.setOnLoadCallback(drawChart);
-	      function drawChart() {
-	        var data = google.visualization.arrayToDataTable([
-	          ['Seatdistribution', 'seats'],
-	          ['SPD',     11],
-	          ['Die Grünen',      2],
-	          ['CDU',  2],
-	          ['CSU TV', 2],
-	          ['Meine Partei :-)',    22]
-	        ]);
-	
-	        var options = {
-	          title: 'My Daily Activities'
-	        };
-	
-	        var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
-	        chart.draw(data, options);
-	      }
-	    </script>
-        
+        @scripts
+                
     </head>
     <body>
     	<div id="maincontainer">
@@ -45,9 +25,9 @@
 			</div>
 			<div id="inframe">
 				<div id="submenu">
-					<a href="/deutschland">Deutschland</a>
-					<a href="#">Bundesländer</a>
-					<a href="#">Wahlkreise</a>
+					<a href="?granularity=germany">Deutschland</a>
+					<a href="?granularity=state">Bundesländer</a>
+					<a href="?granularity=constituency">Wahlkreise</a>
 				</div>
 				<div id="content">
 	        		@content
