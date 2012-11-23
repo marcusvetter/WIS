@@ -1,7 +1,13 @@
 package common.db;
 
 public class DatabaseException extends RuntimeException {
-    public DatabaseException() {
+   
+	/**
+	 * Serial
+	 */
+	private static final long serialVersionUID = -6213234661746926655L;
+
+	public DatabaseException() {
         super("No messsage given");
     }
 
