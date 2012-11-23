@@ -13,7 +13,8 @@
 	        ]);
 	
 	        var options = {
-	          title: '@title'
+                title: '@title',
+                colors: [@for(seat <- seataggregates) {'@seat.getColor()' @if(seat != seataggregates.last) {,}}]
 	        };
 	
 	        var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
