@@ -1,0 +1,39 @@
+@(title: String, voteaggregates: List[model.VoteAggregate])
+
+@scripts = {
+        <script type='text/javascript' src='https://www.google.com/jsapi'></script>
+	    <script type='text/javascript'>
+		      google.load('visualization', '1', {packages:['table']});
+		      google.setOnLoadCallback(drawTable);
+		      function drawTable() {
+		        var data = new google.visualization.DataTable();
+		        data.addColumn('string', 'Partei');
+		        data.addColumn('number', 'Erststimmen');
+		        data.addColumn('number', 'Zweitstimmen');
+		        data.addRows([
+			        @for(vote <- voteaggregates) {
+						['@vote.getParty()', @vote.getFirstVotes(), @vote.getSecondVotes()] @if(vote != voteaggregates.last) {,}
+					}
+		        ]);
+		
+		        var table = new google.visualization.Table(document.getElementById('table_div'));
+		        table.draw(data, {showRowNumber: false});
+		      }
+	      </script>
+		   
+	    
+}
+
+@submenu = { 				
+	<div id="submenu">
+		<a href="?sicht=deutschland" id="deutschland">Deutschland</a>
+		<a href="?sicht=bundesland" id="bundesland">Bundesländer</a>
+		<a href="?sicht=wahlkreis" id="wahlkreis">Wahlkreise</a>
+	</div>
+}
+
+@main(title, scripts, submenu){
+	<center>
+		<div id="table_div" style="width: 600px;"></div>
+	</center>
+}

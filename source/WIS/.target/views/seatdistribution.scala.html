@@ -8,21 +8,30 @@
 	        var data = google.visualization.arrayToDataTable([
 	          ['Seatdistribution', 'seats'],
 				@for(seat <- seataggregates) {
-					['@seat.getParty()', @seat.getSeats()] @if(seat != seataggregates.last) {,}
+					['@seat.getParty(), @seat.getSeats()', @seat.getSeats()] @if(seat != seataggregates.last) {,}
 				}
+				
 	        ]);
 	
 	        var options = {
-                title: '@title',
-                colors: [@for(seat <- seataggregates) {'@seat.getColor()' @if(seat != seataggregates.last) {,}}]
+                colors: [@for(seat <- seataggregates) {'@seat.getColor()' @if(seat != seataggregates.last) {,}}],
+                pieSliceText: 'label',
+                legend: {position: 'none'},
+                height: '600',
+                width: '600',
+                tooltip: {trigger: 'none'},
+                pieSliceTextStyle: {color: 'white'}
 	        };
 	
 	        var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
 	        chart.draw(data, options);
 	      }
-	    </script>
+	    </script>	   
+	    
 }
 
 @main(title, scripts){
-	<div id="chart_div" style="width: 500px; height: 500px;"></div>
+	<center>
+		<div id="chart_div" style="width: 600px; height: 600px;"></div>
+	</center>
 }

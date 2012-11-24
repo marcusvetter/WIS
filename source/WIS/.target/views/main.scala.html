@@ -1,4 +1,4 @@
-@(title: String, scripts: Html = Html(""))(content: Html)
+@(title: String, scripts: Html = Html(""), submenu: Html = Html(""))(content: Html)
 
 <!DOCTYPE html>
 
@@ -9,6 +9,22 @@
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
         <script src="@routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
         <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+		<script>
+		    $(function() {
+				var menu = {
+					"ueberblick":     "ueberblick",
+					"sitzverteilung": "sitzverteilung",
+					"deutschland": "deutschland",
+					"bundesland": "bundesland",
+					"wahlkreis": "wahlkreis"
+				};
+			
+				$.each(menu, function(key, value) {
+					if(window.location.href.indexOf(value) > -1)
+						$("#"+key).addClass("active");
+				});
+			});
+	   </script>
         @scripts
                 
     </head>
@@ -18,17 +34,11 @@
 				Wahlinformationssystem der Bundestagswahl 2009
 			</div>
 			<div id="menu">
-				<a href="#">Überblick</a>
-				<a href="/sitzverteilung">Sitzverteilung</a>
-				<a href="#">Überhangmandate</a>
-				<a href="#">Wahlbeteiligung</a>
+				<a href="/ueberblick?sicht=deutschland" id="ueberblick">Überblick</a>
+				<a href="/sitzverteilung" id="sitzverteilung">Sitzverteilung</a>
 			</div>
 			<div id="inframe">
-				<div id="submenu">
-					<a href="?granularity=germany">Deutschland</a>
-					<a href="?granularity=state">Bundesländer</a>
-					<a href="?granularity=constituency">Wahlkreise</a>
-				</div>
+				@submenu
 				<div id="content">
 	        		@content
 	        	</div>

@@ -12,12 +12,12 @@ a {
 
 div#maincontainer {
 	margin: auto;
-	width: 1000px;
+	width: 1098px;
 	background-color: #E3E3E3;
 }
 
 div#header {
-	font-size: 19pt;
+	font-size: 20pt;
 	color: #4682B4;
 	background-color: #E3E3E3;
 	padding-top: 20px;
@@ -39,36 +39,36 @@ div#menu a {
 	background-color: #E3E3E3;
 }
 
-div#menu a:hover, div#menu a:active {
+div#menu a:hover, div#menu a:active, div#menu a.active {
 	background-color: #4682B4;
 	color: #FFFFFF;
 }
 
 div#submenu a {
-	font-size: 16;
+	font-size: 13pt;
 	float:left;
 	padding-left: 10px;
 	padding-top: 10px;
 	padding-bottom: 10px;
-	width:200px;
+	width:271px;
 	text-align: center;
 	display: block;
 }
 
-div#submenu a:hover {
+div#submenu a:hover, div#submenu a:active, div#submenu a.active {
 	color: #4682B4;
 	background-color: #F5F5F5; 
 }
 
 div#inframe {
+	width:843px;
 	float:left;
 	background-color: #FFFFFF;
-	border: 1px solid #E3E3E3;
 }
 
 div#content {
 	padding-left: 10px;
-	padding-top: 65px;
+	padding-top: 50px;
 	padding-bottom: 10px;
 }
 

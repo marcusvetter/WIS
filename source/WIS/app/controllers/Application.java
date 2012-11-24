@@ -1,37 +1,48 @@
 package controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import common.Granularity;
-
-import play.api.templates.Html;
-import play.Play;
+import model.DataCache;
+import model.SeatAggregate;
+import model.VoteAggregate;
 import play.mvc.Controller;
 import play.mvc.Result;
-import scala.Function1;
-import scala.collection.script.Index;
-
-import model.*;
-
-import views.html.*;
+import views.html.overview;
+import views.html.seatdistribution;
 
 public class Application extends Controller {
 
-	public static Result seatdistribution(String granularity) {
-		Granularity gran = null;
-		try {
-			gran = Granularity.valueOf(granularity.toUpperCase());
-		} catch (Exception e) {
+	/**
+	 * Index
+	 */
+	public static Result index() {
+		return redirect("/ueberblick?sicht=deutschland");
+	}
+
+	/**
+	 * Overview
+	 */
+	public static Result overview(String view) {
+		if (!(view.equals("deutschland") || view.equals("bundesland") || view
+				.equals("wahlkreis"))) {
 			return badRequest("Invalid parameter.");
 		}
 
-        DataCache.updateCache();
-		
-		String title = "Sitzveteilung fuer " + gran;
-        List<SeatAggregate> seats = DataCache.getSeatAggregates();
-		return ok(seatdistribution.render(title, seats));
+		DataCache.updateCache();
 
+		List<VoteAggregate> votes = DataCache.getVoteAggregates(view);
+		return ok(overview
+				.render("Überblick: " + view.substring(0, 1).toUpperCase()
+						+ view.substring(1), votes));
 	}
 
+	/**
+	 * Seat distribution
+	 */
+	public static Result seatdistribution() {
+		DataCache.updateCache();
+
+		List<SeatAggregate> seats = DataCache.getSeatAggregates();
+		return ok(seatdistribution.render("Sitzveteilung", seats));
+	}
 }
