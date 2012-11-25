@@ -176,3 +176,27 @@ create or replace view gewaehlte_bewerber (bundesland, partei, vorname, nachname
 	where m.kandidat = ktur.id and ktur.kandidat = k.id and m.partei = p.id and m.bundesland = bl.id
 	order by m.bundesland, m.partei, wahlkreis, listenplatz	
 );
+
+
+-------------------------------------------------
+--------- Berechnung Übersicht Parteien ---------
+-------------------------------------------------
+
+create or replace view partei_erststimmen_zweitstimmen_deutschland as (
+	select case when pErst.name is null then pZweit.name else pErst.name end as partei, COALESCE(pErst.erststimmen,0) as erststimmen, COALESCE(pZweit.zweitstimmen,0) as zweitstimmen
+	from (select partei.name, sum(erst.anzahlstimmen) as erststimmen
+		  from wis_erststimmenergebnis erst, wis_kandidatur kand, wis_partei partei, wis_bundestagswahl btwahl
+		  where erst.fuerkandidatur = kand.id
+		  and kand.partei = partei.id
+		  and erst.wahl = btwahl.id
+		  and btwahl.jahr = 2009
+		  group by partei.name) as pErst full outer join
+		 (select partei.name, sum(zweit.anzahlstimmen) as zweitstimmen
+		  from wis_zweitstimmenergebnis zweit, wis_landesliste lliste, wis_partei partei, wis_bundestagswahl btwahl
+		  where zweit.fuerliste = lliste.id
+		  and lliste.partei = partei.id
+		  and zweit.wahl = btwahl.id
+		  and btwahl.jahr = 2009
+		  group by partei.name) as pZweit
+		  on pErst.name = pZweit.name        
+);

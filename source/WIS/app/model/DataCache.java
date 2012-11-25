@@ -36,9 +36,7 @@ public class DataCache {
 	 * @return vote aggregates
 	 */
 	public static List<VoteAggregate> getVoteAggregates(String view) {
-		DataCache.votes.add(new VoteAggregate("SPD", 25461, 12345, 2009));
-		DataCache.votes.add(new VoteAggregate("CDU", 12345, 25461, 2009));
-		DataCache.votes.add(new VoteAggregate("FDP", 25461, 25461, 2009));
+		//TODO: Filter by view
 		return DataCache.votes;
 	}
 
@@ -54,6 +52,7 @@ public class DataCache {
 					conf.getString("wisdb.username"),
 					conf.getString("wisdb.password"));
 			DataCache.seats = db.getSeatAggregation();
+			DataCache.votes = db.getVoteAggregation();
 			return true;
 		} catch (DatabaseException e) {
 			return false;
