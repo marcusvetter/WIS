@@ -4,3 +4,6 @@ project/target
 target
 tmp
 *.class
+*.swp
+*.target
+.target

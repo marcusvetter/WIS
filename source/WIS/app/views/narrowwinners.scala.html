@@ -6,6 +6,7 @@
         google.load("visualization", "1", {packages:["table"]});
         $(document).ready(function() {
             $("#party_select").change(function () {
+            if ($("#party_select").val() != '0') {
             var jsonData = $.ajax({
                 url: "/knappegewinner/gewinner/"+$("#party_select").val(),
                 dataType:"json", async: false}).responseText;
@@ -28,6 +29,10 @@
             } else {
                 $("#narrowlosers_div").hide();
                 $("#narrowwinners_div").show();
+            }
+            } else {
+                $("#narrowlosers_div").hide();
+                $("#narrowwinners_div").hide();
             }
             });
         });

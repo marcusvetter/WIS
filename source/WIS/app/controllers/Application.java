@@ -86,6 +86,7 @@ public class Application extends Controller {
     public static Result narrowwinners() {
         initializeDataManager();
         List<Party> parties = DataCache.getParties();
+        parties.add(0, new Party(0, "--- bitte waehlen ---"));
         return ok(narrowwinners.render("Knappe Gewinner", parties));
     }
 
