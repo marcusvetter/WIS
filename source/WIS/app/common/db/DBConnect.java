@@ -1,14 +1,19 @@
 package common.db;
 
-import java.sql.*;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 
-import common.IDataProvider;
-
+import model.BundestagMember;
+import model.ConstituencyWinner;
 import model.SeatAggregate;
 import model.VoteAggregate;
-import model.ElectoralDistrictWinner;
+
+import common.IDataProvider;
 
 public class DBConnect implements IDataProvider {
 	private Connection con;
@@ -66,18 +71,31 @@ public class DBConnect implements IDataProvider {
 		return votes;
 	}
 
-    public List<ElectoralDistrictWinner> getElectoralDistrictWinners() {
-        List<ElectoralDistrictWinner> winners = new ArrayList<ElectoralDistrictWinner>(299);
-        try {
-            ResultSet rs = executeStatement("SELECT * FROM alle_wahlkreise_sieger WHERE wahl = 2009 order by wahlkreis");
-            while (rs.next()) {
-                winners.add(new ElectoralDistrictWinner(rs.getInt("wahlkreis"), rs.getString("wahlkreisname"), rs.getString("erststimmensieger"), rs.getString("zweitstimmensieger")));
-            }
-            rs.close();
-        } catch (SQLException e) {
-            throw new DatabaseException("SELECT failed");
-        }
-        return winners;
+	public List<ConstituencyWinner> getConstituencyWinners() {
+		List<ConstituencyWinner> winners = new ArrayList<ConstituencyWinner>(
+				299);
+		try {
+			ResultSet rs = executeStatement("SELECT * FROM alle_wahlkreise_sieger WHERE wahl = 2009 order by wahlkreis");
+			while (rs.next()) {
+				winners.add(new ConstituencyWinner(rs.getInt("wahlkreis"), rs
+						.getString("wahlkreisname"), rs
+						.getString("erststimmensieger"), rs
+						.getString("zweitstimmensieger")));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			throw new DatabaseException("SELECT failed");
+		}
+		return winners;
 
-    }
+	}
+
+	@Override
+	public List<BundestagMember> getBundestagMembers() {
+		List<BundestagMember> bundestagmembers = new ArrayList<BundestagMember>();
+
+		// TODO
+
+		return bundestagmembers;
+	}
 }

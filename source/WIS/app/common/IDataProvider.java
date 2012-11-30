@@ -2,6 +2,8 @@ package common;
 
 import java.util.List;
 
+import model.BundestagMember;
+import model.ConstituencyWinner;
 import model.SeatAggregate;
 import model.VoteAggregate;
 
@@ -20,5 +22,19 @@ public interface IDataProvider {
 	 * @return list of aggregated votes
 	 */
 	List<VoteAggregate> getVoteAggregation();
+
+	/**
+	 * Get the winner of the constituencies
+	 * 
+	 * @return list of winner of the constituencies
+	 */
+	List<ConstituencyWinner> getConstituencyWinners();
+
+	/**
+	 * Get the members of the bundestag
+	 * 
+	 * @return list of members of the bundestag
+	 */
+	List<BundestagMember> getBundestagMembers();
 
 }

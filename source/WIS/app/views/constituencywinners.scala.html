@@ -1,0 +1,33 @@
+@(title: String, districts: List[model.ConstituencyWinner])
+
+@scripts = {
+    <script type="text/javascript">
+        google.load("visualization", "1", {packages:["table"]});
+        google.setOnLoadCallback(drawTable);
+        function drawTable() {
+            var data = new google.visualization.DataTable(
+                {
+                cols: [
+                    {id: 'id', label:'Nummer', type:'int'},
+                    {id: 'district', label:'Wahlkreis', type:'string'}, 
+                    {id:'firstvotewinner', label:'Erststimmengewinner', type:'string'},
+                    {id:'secondvotewinner', label:'Zweitstimmengewinner', type:'string'}],
+                rows: [
+                @for(district <- districts) {
+                {c:[{v:@district.getElectoralDistrictID()}, {v:'@district.getElectoralDistrict()'}, {v:'@district.getFirstVoteWinner()'}, {v:'@district.getSecondVoteWinner()'}]} @if(district != districts.last) {,}
+                }
+                ] }, 0.6);
+	    
+            var view = new google.visualization.DataView(data);
+            var table = new google.visualization.Table(document.getElementById('table_div'));
+            table.draw(view, {sortColumn: 0});
+        }
+	</script>	   
+	    
+}
+
+@main(title, scripts){
+	<center>
+		<div id="table_div"></div>
+	</center>
+}

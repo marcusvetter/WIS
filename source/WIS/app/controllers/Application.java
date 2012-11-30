@@ -3,16 +3,18 @@ package controllers;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import common.DataManagerThread;
-import common.db.DBConnect;
-
 import model.DataCache;
 import model.VoteAggregate;
 import play.Configuration;
 import play.mvc.Controller;
 import play.mvc.Result;
+import views.html.bundestagmembers;
+import views.html.constituencywinners;
 import views.html.overview;
 import views.html.seatdistribution;
+
+import common.DataManagerThread;
+import common.db.DBConnect;
 
 public class Application extends Controller {
 
@@ -20,7 +22,7 @@ public class Application extends Controller {
 	 * The interval time of updating the data cache (in seconds) [10min = 600s]
 	 * 
 	 */
-	private static final int CACHE_UPDATE_INTERVAL = 60;
+	private static final int CACHE_UPDATE_INTERVAL = 600;
 
 	/**
 	 * The thread for managing data
@@ -40,15 +42,36 @@ public class Application extends Controller {
 	 */
 	public static Result overview(String view) {
 		initializeDataManager();
-		if (!(view.equals("deutschland") || view.equals("bundesland") || view
-				.equals("wahlkreis"))) {
-			return badRequest("Invalid parameter.");
-		}
 
-		List<VoteAggregate> votes = DataCache.getVoteAggregates(view);
-		return ok(overview
-				.render("Überblick: " + view.substring(0, 1).toUpperCase()
-						+ view.substring(1), votes));
+		if (view.equals("deutschland")) {
+			List<VoteAggregate> votes = DataCache.getVoteAggregates();
+			return ok(overview.render("Überblick: "
+					+ view.substring(0, 1).toUpperCase() + view.substring(1),
+					votes));
+		} else if (view.equals("bundesland")) {
+			// TODO
+			List<VoteAggregate> votes = DataCache.getVoteAggregates();
+			return ok(overview.render("Überblick: "
+					+ view.substring(0, 1).toUpperCase() + view.substring(1),
+					votes));
+		} else if (view.equals("wahlkreis")) {
+			// TODO
+			List<VoteAggregate> votes = DataCache.getVoteAggregates();
+			return ok(overview.render("Überblick: "
+					+ view.substring(0, 1).toUpperCase() + view.substring(1),
+					votes));
+		}
+		return badRequest("Invalid parameter.");
+
+	}
+
+	/**
+	 * Constituency winners
+	 */
+	public static Result constituencywinners() {
+		initializeDataManager();
+		return ok(constituencywinners.render("Wahlkreissieger",
+				DataCache.getConstituencyWinners()));
 	}
 
 	/**
@@ -58,6 +81,23 @@ public class Application extends Controller {
 		initializeDataManager();
 		return ok(seatdistribution.render("Sitzverteilung",
 				DataCache.getSeatAggregates()));
+	}
+
+	/**
+	 * Excess mandates
+	 */
+	public static Result excessmandates() {
+		initializeDataManager();
+		return ok("Überhangmandate");
+	}
+
+	/**
+	 * Members of the bundestag
+	 */
+	public static Result bundestagmembers() {
+		initializeDataManager();
+		return ok(bundestagmembers.render("Bundestagsmitglieder",
+				DataCache.getBundestagMembers()));
 	}
 
 	/**

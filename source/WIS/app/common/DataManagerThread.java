@@ -40,6 +40,10 @@ public class DataManagerThread extends Thread {
 			try {
 				DataCache.setSeatAggregation(dataProvider.getSeatAggregation());
 				DataCache.setVoteAggregation(dataProvider.getVoteAggregation());
+				DataCache.setBundestagMembers(dataProvider
+						.getBundestagMembers());
+				DataCache.setConstituencyWinners(dataProvider
+						.getConstituencyWinners());
 
 				// Log
 				String date = new SimpleDateFormat("dd MMM yyyy HH:mm:ss")

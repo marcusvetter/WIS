@@ -1,0 +1,34 @@
+@(title: String, bundestagmembers: List[model.BundestagMember])
+
+@scripts = {
+        <script type='text/javascript' src='https://www.google.com/jsapi'></script>
+	    <script type='text/javascript'>
+		      google.load('visualization', '1', {packages:['table']});
+		      google.setOnLoadCallback(drawTable);
+		      function drawTable() {
+		        var data = new google.visualization.DataTable();
+		        data.addColumn('string', 'Bundesland');
+		        data.addColumn('string', 'Partei');
+		        data.addColumn('string', 'Vorname');
+		        data.addColumn('string', 'Nachname');
+		        data.addColumn('number', 'Wahlkreis');
+		        data.addColumn('number', 'Listenplatz');
+		        data.addRows([
+			        @for(member <- bundestagmembers) {
+						['@member.getState()', '@member.getParty()', '@member.getFirstname()', '@member.getSurname()', @member.getConstituency(), @member.getPlacement()] @if(member != bundestagmembers.last) {,}
+					}
+		        ]);
+		
+		        var table = new google.visualization.Table(document.getElementById('table_div'));
+		        table.draw(data, {showRowNumber: false});
+		      }
+	      </script>
+		   
+	    
+}
+
+@main(title, scripts){
+	<center>
+		<div id="table_div" style="width: 600px;"></div>
+	</center>
+}

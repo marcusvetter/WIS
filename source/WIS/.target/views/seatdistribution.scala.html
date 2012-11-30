@@ -27,11 +27,30 @@
 	        chart.draw(data, options);
 	      }
 	    </script>	   
+	    <script type='text/javascript' src='https://www.google.com/jsapi'></script>
+	    <script type='text/javascript'>
+		      google.load('visualization', '1', {packages:['table']});
+		      google.setOnLoadCallback(drawTable);
+		      function drawTable() {
+		        var data = new google.visualization.DataTable();
+		        data.addColumn('string', 'Partei');
+		        data.addColumn('number', 'Sitze');
+		        data.addRows([
+			        @for(seat <- seataggregates) {
+						['@seat.getParty()', @seat.getSeats()] @if(seat != seataggregates.last) {,}
+					}
+		        ]);
+		
+		        var table = new google.visualization.Table(document.getElementById('table_div'));
+		        table.draw(data, {showRowNumber: false});
+		      }
+	      </script>
 	    
 }
 
 @main(title, scripts){
 	<center>
-		<div id="chart_div" style="width: 600px; height: 600px;"></div>
+		<div id="chart_div" style="width: 600px; height: 400px;"></div>
+		<div id="table_div" style="width: 200px;"></div>
 	</center>
 }

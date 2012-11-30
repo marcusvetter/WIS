@@ -1,25 +1,25 @@
 package model;
 
-public class ElectoralDistrictWinner {
+public class ConstituencyWinner {
 
-    private int electoralDistrictID;
-	private String electoralDistrict;
+    private int constituencyID;
+	private String constituency;
 	private String firstVoteWinner;
     private String secondVoteWinner;
 
-	public ElectoralDistrictWinner(int id, String ed, String fvw, String svw) {
-        electoralDistrictID = id;
-	    electoralDistrict = ed;
+	public ConstituencyWinner(int id, String ed, String fvw, String svw) {
+        constituencyID = id;
+	    constituency = ed;
 	    firstVoteWinner = fvw;
         secondVoteWinner = svw;
     }
 
 	public String getElectoralDistrict() {
-		return electoralDistrict;
+		return constituency;
 	}
 
     public int getElectoralDistrictID() {
-        return electoralDistrictID;
+        return constituencyID;
     }
 
 	public String getFirstVoteWinner() {
