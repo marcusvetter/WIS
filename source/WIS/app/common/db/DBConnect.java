@@ -10,6 +10,7 @@ import java.util.List;
 
 import model.BundestagMember;
 import model.ConstituencyWinner;
+import model.ExcessMandate;
 import model.SeatAggregate;
 import model.VoteAggregate;
 
@@ -93,22 +94,23 @@ public class DBConnect implements IDataProvider {
 		try {
 			ResultSet rs = executeStatement("SELECT * FROM gewaehlte_bewerber");
 			while (rs.next()) {
-				
+
 				// Set wahlkreis to '-', if the database returns '0'
 				String wahlkreis = "-";
 				if (rs.getInt("wahlkreis") != 0) {
 					wahlkreis = String.valueOf(rs.getInt("wahlkreis"));
 				}
-				
+
 				// Set the listenplatz to '-', if the database reutrns '0'
 				String listenplatz = "-";
 				if (rs.getInt("listenplatz") != 0) {
 					listenplatz = String.valueOf(rs.getInt("listenplatz"));
 				}
-				
+
 				bundestagmembers.add(new BundestagMember(rs
 						.getString("bundesland"), rs.getString("partei"), rs
-						.getString("vorname"), rs.getString("nachname"), wahlkreis, listenplatz));
+						.getString("vorname"), rs.getString("nachname"),
+						wahlkreis, listenplatz));
 			}
 			rs.close();
 		} catch (SQLException e) {
@@ -116,5 +118,14 @@ public class DBConnect implements IDataProvider {
 		}
 
 		return bundestagmembers;
+	}
+
+	@Override
+	public List<ExcessMandate> getExcessMandates() {
+		List<ExcessMandate> excessmandates = new ArrayList<ExcessMandate>();
+
+		// TODO
+
+		return excessmandates;
 	}
 }

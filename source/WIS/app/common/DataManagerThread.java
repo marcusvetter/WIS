@@ -44,6 +44,7 @@ public class DataManagerThread extends Thread {
 						.getBundestagMembers());
 				DataCache.setConstituencyWinners(dataProvider
 						.getConstituencyWinners());
+				DataCache.setExcessMandates(dataProvider.getExcessMandates());
 
 				// Log
 				String date = new SimpleDateFormat("dd MMM yyyy HH:mm:ss")

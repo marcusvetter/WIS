@@ -26,6 +26,11 @@ public class DataCache {
 	private static List<ConstituencyWinner> constituencyWinners = new ArrayList<ConstituencyWinner>();
 
 	/**
+	 * Cached excess mandates
+	 */
+	private static List<ExcessMandate> excessmandates = new ArrayList<ExcessMandate>();
+
+	/**
 	 * Get cached seat aggregates
 	 * 
 	 * @return seat aggregates
@@ -99,6 +104,25 @@ public class DataCache {
 	public static void setConstituencyWinners(
 			List<ConstituencyWinner> constituencyWinners) {
 		DataCache.constituencyWinners = constituencyWinners;
+	}
+
+	/**
+	 * Get the excess mandates
+	 * 
+	 * @return list of excess mandates
+	 */
+	public static List<ExcessMandate> getExcessMandates() {
+		return DataCache.excessmandates;
+	}
+
+	/**
+	 * Set the excess mandates
+	 * 
+	 * @param excessmandates
+	 *            to set
+	 */
+	public static void setExcessMandates(List<ExcessMandate> excessmandates) {
+		DataCache.excessmandates = excessmandates;
 	}
 
 }

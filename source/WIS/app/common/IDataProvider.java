@@ -4,6 +4,7 @@ import java.util.List;
 
 import model.BundestagMember;
 import model.ConstituencyWinner;
+import model.ExcessMandate;
 import model.SeatAggregate;
 import model.VoteAggregate;
 
@@ -36,5 +37,12 @@ public interface IDataProvider {
 	 * @return list of members of the bundestag
 	 */
 	List<BundestagMember> getBundestagMembers();
+
+	/**
+	 * Get the list of excess mandates
+	 * 
+	 * @return list of excess mandates
+	 */
+	List<ExcessMandate> getExcessMandates();
 
 }
