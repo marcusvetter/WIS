@@ -8,6 +8,7 @@ GET     /                                      controllers.Application.index()
 # Sitzverteilung          
 GET     /ueberblick               controllers.Application.overview(sicht: String ?= "deutschland")
 GET     /sitzverteilung         controllers.Application.seatdistribution()
+GET     /wahlkreissieger         controllers.ElectoralDistrict.electoraldistrictwinners()
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

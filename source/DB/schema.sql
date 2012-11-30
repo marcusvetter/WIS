@@ -14,7 +14,8 @@ create table wis_wahlkreis (
         id integer primary key,
         name varchar(500),
         ort varchar(1000),
-        bundesland integer references wis_bundesland
+        bundesland integer references wis_bundesland,
+		anzahlwahlberechtigte integer
 );
 
 create table wis_wahlbezirk (
