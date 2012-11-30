@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import model.SeatAggregate;
 import model.VoteAggregate;
+import model.ElectoralDistrictWinner;
 
 public class DBConnect {
 	private Connection con;
@@ -62,4 +63,19 @@ public class DBConnect {
 		}
 		return votes;
 	}
+
+    public List<ElectoralDistrictWinner> getElectoralDistrictWinners() {
+        List<ElectoralDistrictWinner> winners = new ArrayList<ElectoralDistrictWinner>(299);
+        try {
+            ResultSet rs = executeStatement("SELECT * FROM alle_wahlkreise_sieger WHERE wahl = 2009 order by wahlkreis");
+            while (rs.next()) {
+                winners.add(new ElectoralDistrictWinner(rs.getInt("wahlkreis"), rs.getString("wahlkreisname"), rs.getString("erststimmensieger"), rs.getString("zweitstimmensieger")));
+            }
+            rs.close();
+        } catch (SQLException e) {
+            throw new DatabaseException("SELECT failed");
+        }
+        return winners;
+
+    }
 }
