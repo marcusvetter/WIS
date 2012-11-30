@@ -1,4 +1,4 @@
-@(title: String, bundestagmembers: List[model.BundestagMember])
+@(title: String, excessmandates: List[model.ExcessMandate])
 
 @scripts = {
         <script type='text/javascript' src='https://www.google.com/jsapi'></script>
@@ -9,13 +9,10 @@
 		        var data = new google.visualization.DataTable();
 		        data.addColumn('string', 'Bundesland');
 		        data.addColumn('string', 'Partei');
-		        data.addColumn('string', 'Vorname');
-		        data.addColumn('string', 'Nachname');
-		        data.addColumn('string', 'Wahlkreis');
-		        data.addColumn('string', 'Listenplatz');
+		        data.addColumn('string', 'Anzahl der Überhangmandate');
 		        data.addRows([
-			        @for(member <- bundestagmembers) {
-						['@member.getState()', '@member.getParty()', '@member.getFirstname()', '@member.getSurname()', '@member.getConstituency()', '@member.getPlacement()'] @if(member != bundestagmembers.last) {,}
+			        @for(mandate <- excessmandates) {
+						['@mandate.getState()', '@mandate.getParty()', '@mandate.getAmount()'] @if(mandate != excessmandates.last) {,}
 					}
 		        ]);
 		

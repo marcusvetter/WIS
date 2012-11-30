@@ -6,8 +6,8 @@ public class BundestagMember {
 	private String party;
 	private String firstname;
 	private String surname;
-	private int constituency;
-	private int placement;
+	private String constituency;
+	private String placement;
 
 	/**
 	 * @param state
@@ -18,7 +18,7 @@ public class BundestagMember {
 	 * @param placement
 	 */
 	public BundestagMember(String state, String party, String firstname,
-			String surname, int constituency, int placement) {
+			String surname, String constituency, String placement) {
 		this.state = state;
 		this.party = party;
 		this.firstname = firstname;
@@ -35,26 +35,10 @@ public class BundestagMember {
 	}
 
 	/**
-	 * @param state
-	 *            the state to set
-	 */
-	public void setState(String state) {
-		this.state = state;
-	}
-
-	/**
 	 * @return the party
 	 */
 	public String getParty() {
 		return party;
-	}
-
-	/**
-	 * @param party
-	 *            the party to set
-	 */
-	public void setParty(String party) {
-		this.party = party;
 	}
 
 	/**
@@ -65,14 +49,6 @@ public class BundestagMember {
 	}
 
 	/**
-	 * @param firstname
-	 *            the firstname to set
-	 */
-	public void setFirstname(String firstname) {
-		this.firstname = firstname;
-	}
-
-	/**
 	 * @return the surname
 	 */
 	public String getSurname() {
@@ -80,41 +56,17 @@ public class BundestagMember {
 	}
 
 	/**
-	 * @param surname
-	 *            the surname to set
-	 */
-	public void setSurname(String surname) {
-		this.surname = surname;
-	}
-
-	/**
 	 * @return the constituency
 	 */
-	public int getConstituency() {
+	public String getConstituency() {
 		return constituency;
-	}
-
-	/**
-	 * @param constituency
-	 *            the constituency to set
-	 */
-	public void setConstituency(int constituency) {
-		this.constituency = constituency;
 	}
 
 	/**
 	 * @return the placement
 	 */
-	public int getPlacement() {
+	public String getPlacement() {
 		return placement;
-	}
-
-	/**
-	 * @param placement
-	 *            the placement to set
-	 */
-	public void setPlacement(int placement) {
-		this.placement = placement;
 	}
 
 }

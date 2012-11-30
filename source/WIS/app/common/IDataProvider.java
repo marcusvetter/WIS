@@ -6,6 +6,7 @@ import model.BundestagMember;
 import model.Party;
 import model.ConstituencyWinner;
 import model.NarrowWinner;
+import model.ExcessMandate;
 import model.SeatAggregate;
 import model.VoteAggregate;
 
@@ -63,5 +64,12 @@ public interface IDataProvider {
      * @return list of narrow losers
      */
     List<NarrowWinner> getNarrowLosers(int party);
+	
+    /**
+	 * Get the list of excess mandates
+	 * 
+	 * @return list of excess mandates
+	 */
+	List<ExcessMandate> getExcessMandates();
 
 }

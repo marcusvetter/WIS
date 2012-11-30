@@ -50,6 +50,7 @@ public class DataManagerThread extends Thread {
                     DataCache.setNarrowWinners(p.getID(), dataProvider.getNarrowWinners(p.getID()));
                     DataCache.setNarrowLosers(p.getID(), dataProvider.getNarrowLosers(p.getID()));
                 }
+				DataCache.setExcessMandates(dataProvider.getExcessMandates());
 
 				// Log
 				String date = new SimpleDateFormat("dd MMM yyyy HH:mm:ss")

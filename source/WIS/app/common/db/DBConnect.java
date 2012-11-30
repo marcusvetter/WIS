@@ -12,6 +12,7 @@ import model.Party;
 import model.BundestagMember;
 import model.ConstituencyWinner;
 import model.NarrowWinner;
+import model.ExcessMandate;
 import model.SeatAggregate;
 import model.VoteAggregate;
 
@@ -23,10 +24,6 @@ public class DBConnect implements IDataProvider {
 	public DBConnect(String connectstring, String username, String password) {
 		try {
 			Class.forName("org.postgresql.Driver");
-			// con =
-			// DriverManager.getConnection(conf.getString("wisdb.connectstring"),
-			// conf.getString("wisdb.username"),
-			// conf.getString("wisdb.password"));
 			con = DriverManager
 					.getConnection(connectstring, username, password);
 		} catch (ClassNotFoundException e1) {
@@ -92,11 +89,34 @@ public class DBConnect implements IDataProvider {
 
 	}
 
-	@Override
 	public List<BundestagMember> getBundestagMembers() {
 		List<BundestagMember> bundestagmembers = new ArrayList<BundestagMember>();
 
-		// TODO
+		try {
+			ResultSet rs = executeStatement("SELECT * FROM gewaehlte_bewerber");
+			while (rs.next()) {
+
+				// Set wahlkreis to '-', if the database returns '0'
+				String wahlkreis = "-";
+				if (rs.getInt("wahlkreis") != 0) {
+					wahlkreis = String.valueOf(rs.getInt("wahlkreis"));
+				}
+
+				// Set the listenplatz to '-', if the database reutrns '0'
+				String listenplatz = "-";
+				if (rs.getInt("listenplatz") != 0) {
+					listenplatz = String.valueOf(rs.getInt("listenplatz"));
+				}
+
+				bundestagmembers.add(new BundestagMember(rs
+						.getString("bundesland"), rs.getString("partei"), rs
+						.getString("vorname"), rs.getString("nachname"),
+						wahlkreis, listenplatz));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			throw new DatabaseException("SELECT failed");
+		}
 
 		return bundestagmembers;
 	}
@@ -144,4 +164,22 @@ public class DBConnect implements IDataProvider {
 		}
 		return nlosers;
     }
+
+
+    public List<ExcessMandate> getExcessMandates() {
+		List<ExcessMandate> excessmandates = new ArrayList<ExcessMandate>();
+
+		try {
+			ResultSet rs = executeStatement("SELECT * FROM ueberhangmandate order by bundesland, partei");
+			while (rs.next()) {
+				excessmandates.add(new ExcessMandate(
+						rs.getString("bundesland"), rs.getString("partei"), rs
+								.getString("anz_ueberhangmandate")));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			throw new DatabaseException("SELECT failed");
+		}
+		return excessmandates;
+	}
 }

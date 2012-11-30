@@ -17,6 +17,7 @@ import views.html.narrowwinners;
 import views.html.narrowwinners_json;
 import views.html.overview;
 import views.html.seatdistribution;
+import views.html.excessmandates;
 
 import common.DataManagerThread;
 import common.db.DBConnect;
@@ -120,7 +121,8 @@ public class Application extends Controller {
 	 */
 	public static Result excessmandates() {
 		initializeDataManager();
-		return ok("Überhangmandate");
+		return ok(excessmandates.render("Überhangmandate",
+				DataCache.getExcessMandates()));
 	}
 
 	/**

@@ -25,6 +25,14 @@ div#header {
 	height: 50px;
 }
 
+div#headline {
+	font-size: 20pt;
+	color: #4682B4;
+	text-align: center;
+	text-decoration: bold;
+	padding-top: 20px;
+}
+
 div#menu{
 	float:left;
 	width:250px;
@@ -68,7 +76,7 @@ div#inframe {
 
 div#content {
 	padding-left: 10px;
-	padding-top: 50px;
+	padding-top: 30px;
 	padding-bottom: 10px;
 }
 

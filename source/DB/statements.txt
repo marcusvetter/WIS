@@ -179,7 +179,7 @@ create or replace view gewaehlte_bewerber (bundesland, partei, vorname, nachname
 
 
 -------------------------------------------------
---------- Berechnung Übersicht Parteien ---------
+--------- Berechnung Uebersicht Parteien ---------
 -------------------------------------------------
 
 create or replace view partei_erststimmen_zweitstimmen_deutschland as (
@@ -203,7 +203,7 @@ create or replace view partei_erststimmen_zweitstimmen_deutschland as (
 
 
 -----------------------------------------------------------------------
---------- Ergebnisberechnung für alle Wahlen (mit Spalte wahl) --------
+--------- Ergebnisberechnung f?r alle Wahlen (mit Spalte wahl) --------
 -----------------------------------------------------------------------
 
 
@@ -468,3 +468,15 @@ CREATE OR REPLACE VIEW alle_wahlkreise_sieger as (
 );
 
 
+-----------------------------------------------------------------------
+---------------------- Anzahl der Ueberhangmandate ---------------------
+-----------------------------------------------------------------------
+
+CREATE OR REPLACE VIEW ueberhangmandate AS (
+        SELECT bland.name as bundesland, partei.name as partei, case when (direktkandidaten.anz_direktmandate - listenplaetze.listenplaetze) < 0 then 0 else direktkandidaten.anz_direktmandate - listenplaetze.listenplaetze end AS anz_ueberhangmandate
+        FROM bundesland_partei_listenplaetze listenplaetze, direktkandidaten_bundesland direktkandidaten, wis_bundesland bland, wis_partei partei
+        WHERE listenplaetze.bundesland = direktkandidaten.bundesland
+        AND listenplaetze.partei = direktkandidaten.partei
+        AND listenplaetze.bundesland = bland.id
+        AND listenplaetze.partei = partei.id
+)
