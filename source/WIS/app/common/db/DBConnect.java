@@ -4,10 +4,12 @@ import java.sql.*;
 import java.util.List;
 import java.util.ArrayList;
 
+import common.IDataProvider;
+
 import model.SeatAggregate;
 import model.VoteAggregate;
 
-public class DBConnect {
+public class DBConnect implements IDataProvider {
 	private Connection con;
 
 	public DBConnect(String connectstring, String username, String password) {

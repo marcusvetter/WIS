@@ -3,10 +3,6 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
-import play.Configuration;
-
-import common.db.*;
-
 public class DataCache {
 
 	/**
@@ -29,6 +25,15 @@ public class DataCache {
 	}
 
 	/**
+	 * Set the seat aggregation list
+	 * 
+	 * @param seatAggregation
+	 */
+	public static void setSeatAggregation(List<SeatAggregate> seatAggregation) {
+		DataCache.seats = seatAggregation;
+	}
+
+	/**
 	 * Get cached vote aggregates
 	 * 
 	 * @param view
@@ -36,27 +41,17 @@ public class DataCache {
 	 * @return vote aggregates
 	 */
 	public static List<VoteAggregate> getVoteAggregates(String view) {
-		//TODO: Filter by view
+		// TODO: Filter by view
 		return DataCache.votes;
 	}
 
 	/**
-	 * Update the cache
+	 * Set the vote aggregation list
 	 * 
-	 * @return false, if a database error occurred.
+	 * @param voteAggregation
 	 */
-	public static boolean updateCache() {
-		try {
-			Configuration conf = play.Play.application().configuration();
-			DBConnect db = new DBConnect(conf.getString("wisdb.connectstring"),
-					conf.getString("wisdb.username"),
-					conf.getString("wisdb.password"));
-			DataCache.seats = db.getSeatAggregation();
-			DataCache.votes = db.getVoteAggregation();
-			return true;
-		} catch (DatabaseException e) {
-			return false;
-		}
+	public static void setVoteAggregation(List<VoteAggregate> voteAggregation) {
+		DataCache.votes = voteAggregation;
 	}
 
 }
