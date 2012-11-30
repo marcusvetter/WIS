@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.concurrent.Semaphore;
 
 import model.DataCache;
+import model.Party;
 
 import common.db.DatabaseException;
 
@@ -44,6 +45,11 @@ public class DataManagerThread extends Thread {
 						.getBundestagMembers());
 				DataCache.setConstituencyWinners(dataProvider
 						.getConstituencyWinners());
+                DataCache.setParties(dataProvider.getParties());
+                for (Party p : DataCache.getParties()) {
+                    DataCache.setNarrowWinners(p.getID(), dataProvider.getNarrowWinners(p.getID()));
+                    DataCache.setNarrowLosers(p.getID(), dataProvider.getNarrowLosers(p.getID()));
+                }
 
 				// Log
 				String date = new SimpleDateFormat("dd MMM yyyy HH:mm:ss")

@@ -8,8 +8,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Party;
 import model.BundestagMember;
 import model.ConstituencyWinner;
+import model.NarrowWinner;
 import model.SeatAggregate;
 import model.VoteAggregate;
 
@@ -98,4 +100,48 @@ public class DBConnect implements IDataProvider {
 
 		return bundestagmembers;
 	}
+
+    public List<Party> getParties() {
+        List<Party> parties = new ArrayList<Party>();
+		try {
+			ResultSet rs = executeStatement("SELECT * FROM wis_partei order by id");
+			while (rs.next()) {
+				parties.add(new Party(rs.getInt("id"), rs.getString("name")));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			throw new DatabaseException("SELECT failed");
+		}
+		return parties;
+    }
+    
+    
+    public List<NarrowWinner> getNarrowWinners(int party) {
+        List<NarrowWinner> nwinners = new ArrayList<NarrowWinner>();
+		try {
+			ResultSet rs = executeStatement("SELECT * FROM alle_wahlkreise_knappste_gewinner WHERE wahl = 2009 AND partei = "+party+" order by diffreihenfolge");
+			while (rs.next()) {
+				nwinners.add(new NarrowWinner(rs.getInt("wahlkreis"), rs.getString("wahlkreisname"), rs.getString("vorname"), rs.getString("nachname"), rs.getString("parteiname"), rs.getInt("stimmdifferenz")));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			throw new DatabaseException("SELECT failed");
+		}
+		return nwinners;
+    }
+    
+    
+    public List<NarrowWinner> getNarrowLosers(int party) {
+        List<NarrowWinner> nlosers = new ArrayList<NarrowWinner>();
+		try {
+			ResultSet rs = executeStatement("SELECT * FROM alle_wahlkreise_knappste_verlierer WHERE wahl = 2009 AND partei = "+party+" order by diffreihenfolge");
+			while (rs.next()) {
+				nlosers.add(new NarrowWinner(rs.getInt("wahlkreis"), rs.getString("wahlkreisname"), rs.getString("vorname"), rs.getString("nachname"), rs.getString("parteiname"), rs.getInt("stimmdifferenz")));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			throw new DatabaseException("SELECT failed");
+		}
+		return nlosers;
+    }
 }

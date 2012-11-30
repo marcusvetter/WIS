@@ -1,15 +1,20 @@
 package controllers;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 import model.DataCache;
 import model.VoteAggregate;
+import model.Party;
+import model.NarrowWinner;
 import play.Configuration;
 import play.mvc.Controller;
 import play.mvc.Result;
 import views.html.bundestagmembers;
 import views.html.constituencywinners;
+import views.html.narrowwinners;
+import views.html.narrowwinners_json;
 import views.html.overview;
 import views.html.seatdistribution;
 
@@ -73,6 +78,33 @@ public class Application extends Controller {
 		return ok(constituencywinners.render("Wahlkreissieger",
 				DataCache.getConstituencyWinners()));
 	}
+
+    /**
+     * Narrow Winners and Losers
+     */
+    public static Result narrowwinners() {
+        initializeDataManager();
+        List<Party> parties = DataCache.getParties();
+        return ok(narrowwinners.render("Knappe Gewinner", parties));
+    }
+
+    public static Result narrowwinners_json(int party) {
+        initializeDataManager();
+        if (party == 0) {
+            return badRequest("no party ID was provided");
+        }
+        return ok(narrowwinners_json.render(DataCache.getNarrowWinners(party)));
+    }
+    
+    public static Result narrowlosers_json(int party) {
+        initializeDataManager();
+        if (party == 0) {
+            return badRequest("no party ID was provided");
+        }
+        return ok(narrowwinners_json.render(DataCache.getNarrowLosers(party)));
+    }
+
+
 
 	/**
 	 * Seat distribution

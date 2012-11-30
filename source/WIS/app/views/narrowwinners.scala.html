@@ -1,0 +1,56 @@
+@(title: String, parties: List[model.Party])
+
+@scripts = {
+    <script type="text/javascript">
+       
+        google.load("visualization", "1", {packages:["table"]});
+        $(document).ready(function() {
+            $("#party_select").change(function () {
+            var jsonData = $.ajax({
+                url: "/knappegewinner/gewinner/"+$("#party_select").val(),
+                dataType:"json", async: false}).responseText;
+            jsonData = eval("("+jsonData+")");
+            var data = new google.visualization.DataTable(jsonData);
+            var view = new google.visualization.DataView(data);
+            var table = new google.visualization.Table(document.getElementById('narrowwinners_table'));
+            table.draw(view, {sortColumn: 4});
+            if (data.getNumberOfRows() == 0) {
+                $("#narrowwinners_div").hide();
+                $("#narrowlosers_div").show();
+            jsonData = $.ajax({
+                url: "/knappegewinner/verlierer/"+$("#party_select").val(),
+                dataType:"json", async: false}).responseText;
+            jsonData = eval("("+jsonData+")");
+            var data = new google.visualization.DataTable(jsonData);
+            var view = new google.visualization.DataView(data);
+            var table = new google.visualization.Table(document.getElementById('narrowlosers_table'));
+            table.draw(view, {sortColumn: 4});
+            } else {
+                $("#narrowlosers_div").hide();
+                $("#narrowwinners_div").show();
+            }
+            });
+        });
+	</script>	   
+	    
+}
+
+@main(title, scripts){
+<center>
+    <form>
+        <select id="party_select" size="1">
+        @for(party <- parties) {
+            <option value="@party.getID()">@party.getName()</option>    
+        }
+        </select>
+    </form>
+    <div id="narrowwinners_div">
+        <h2>Knappe Gewinner</h2>
+		<div id="narrowwinners_table"></div>
+    </div>
+    <div id="narrowlosers_div">
+        <h2>Knappe Verlierer</h2>
+		<div id="narrowlosers_table"></div>
+    </div>
+	</center>
+}

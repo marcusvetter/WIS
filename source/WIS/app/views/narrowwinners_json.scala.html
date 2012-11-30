@@ -1,0 +1,15 @@
+@(winners: List[model.NarrowWinner])
+{
+cols: [
+    {id:'constituencyID', label:'Num', type:'int'}, 
+    {id:'constituency', label:'Wahlkreis', type:'string'}, 
+    {id:'firstname', label:'Vorname', type:'string'}, 
+    {id:'lastname', label:'Nachname', type:'string'},
+    {id:'difference', label:'Differenz', type:'int'} 
+    ],
+rows: [
+    @for(w <- winners) {
+        {c:[{v: @w.getConstituencyID() }, {v:'@w.getConstituency()'}, {v:'@w.getFirstname()'}, {v:'@w.getLastname()'}, {v: @w.getDifference() } ]} @if(w != winners.last) {,}
+    }
+    ]
+}

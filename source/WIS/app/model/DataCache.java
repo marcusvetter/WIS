@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class DataCache {
@@ -24,6 +25,22 @@ public class DataCache {
 	 * Cached constituency winners
 	 */
 	private static List<ConstituencyWinner> constituencyWinners = new ArrayList<ConstituencyWinner>();
+
+    /**
+     * Cached list of parties
+     */
+    private static List<Party> parties = new ArrayList<Party>();
+
+    /**
+     * Cached list of narrow winners
+     */
+    private static HashMap<Integer, List<NarrowWinner>> narrowwinners = new HashMap<Integer, List<NarrowWinner>>();
+    
+    /**
+     * Cached list of narrow losers
+     */
+    private static HashMap<Integer, List<NarrowWinner>> narrowlosers = new HashMap<Integer, List<NarrowWinner>>();
+
 
 	/**
 	 * Get cached seat aggregates
@@ -100,5 +117,66 @@ public class DataCache {
 			List<ConstituencyWinner> constituencyWinners) {
 		DataCache.constituencyWinners = constituencyWinners;
 	}
+
+	/**
+	 * Get all parties 
+	 * 
+	 * @return list of parties
+	 */
+    public static List<Party> getParties() {
+        return DataCache.parties;
+    }
+
+	/**
+	 * Set the parties 
+	 * 
+	 * @param parties
+	 *            list of parties
+	 */
+    public static void setParties(List<Party> parties) {
+        DataCache.parties = parties;
+    }
+
+	/**
+	 * Get narrow winners for a party 
+	 * 
+     * @param party ID of party
+     *
+	 * @return list of narrow winners
+	 */
+    public static List<NarrowWinner> getNarrowWinners(int party) {
+        return DataCache.narrowwinners.get(party);
+    }
+	
+    /**
+	 * Set narrow winners for a party 
+	 * 
+	 * @param party ID of party
+	 * @param winners list of narrow winners
+	 */
+    public static void setNarrowWinners(int party, List<NarrowWinner> winners) {
+        DataCache.narrowwinners.put(party, winners);
+    }
+
+	/**
+	 * Get narrow losers for a party 
+	 * 
+     * @param party ID of party
+     *
+	 * @return list of narrow losers
+	 */
+    public static List<NarrowWinner> getNarrowLosers(int party) {
+        return DataCache.narrowlosers.get(party);
+    }
+	
+    /**
+	 * Set narrow losers for a party 
+	 * 
+	 * @param party ID of party
+	 * @param winners list of narrow losers
+	 */
+    public static void setNarrowLosers(int party, List<NarrowWinner> losers) {
+        DataCache.narrowlosers.put(party, losers);
+    }
 
 }

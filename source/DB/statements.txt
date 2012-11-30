@@ -430,9 +430,9 @@ CREATE OR REPLACE VIEW alle_wahlkreise_knappste_gewinner AS (
 		FROM v_wk_zweite zweite, v_wk_sieger erste
 		WHERE zweite.wahl = erste.wahl AND zweite.wahlkreis = erste.wahlkreis 
 	)
-	SELECT d.wahl, d.wahlkreis, d.partei, p.name parteiname, d.stimmdifferenz, d.diffreihenfolge
-	FROM v_partei_differenzen d, wis_partei p
-	WHERE d.partei = p.id AND d.diffreihenfolge <= 10
+	SELECT d.wahl, d.wahlkreis, wk.name wahlkreisname, d.partei, p.name parteiname, k.vorname, k.nachname, d.stimmdifferenz, d.diffreihenfolge
+	FROM v_partei_differenzen d, wis_partei p, wis_kandidat k, wis_wahlkreis wk
+	WHERE d.partei = p.id AND d.kandidat = k.id AND d.wahlkreis = wk.id AND d.diffreihenfolge <= 10
 );
 
 
@@ -450,9 +450,9 @@ CREATE OR REPLACE VIEW alle_wahlkreise_knappste_verlierer as (
 		FROM v_wk_stimmen stimmen, v_wk_sieger sieger
 		WHERE stimmen.wahl = sieger.wahl AND stimmen.wahlkreis = sieger.wahlkreis AND stimmen.partei not in (SELECT partei FROM alle_wahlkreise_knappste_gewinner)
 	)
-	SELECT *
-	FROM v_partei_verlierer v
-	WHERE v.diffreihenfolge <= 10
+	SELECT v.wahl, v.wahlkreis, wk.name wahlkreisname, v.partei, p.name parteiname, k.vorname, k.nachname, v.stimmdifferenz, v.diffreihenfolge
+	FROM v_partei_verlierer v, wis_wahlkreis wk, wis_partei p, wis_kandidat k
+	WHERE v.wahlkreis = wk.id AND v.partei = p.id AND v.kandidat = k.id AND v.diffreihenfolge <= 10
 );
 
 
