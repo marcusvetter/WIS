@@ -468,3 +468,15 @@ CREATE OR REPLACE VIEW alle_wahlkreise_sieger as (
 );
 
 
+-----------------------------------------------------------------------
+---------------------- Anzahl der Überhangmandate ---------------------
+-----------------------------------------------------------------------
+
+CREATE OR REPLACE VIEW ueberhangmandate AS (
+        SELECT bland.name as bundesland, partei.name as partei, case when (direktkandidaten.anz_direktmandate - listenplaetze.listenplaetze) < 0 then 0 else direktkandidaten.anz_direktmandate - listenplaetze.listenplaetze end AS anz_ueberhangmandate
+        FROM bundesland_partei_listenplaetze listenplaetze, direktkandidaten_bundesland direktkandidaten, wis_bundesland bland, wis_partei partei
+        WHERE listenplaetze.bundesland = direktkandidaten.bundesland
+        AND listenplaetze.partei = direktkandidaten.partei
+        AND listenplaetze.bundesland = bland.id
+        AND listenplaetze.partei = partei.id
+)

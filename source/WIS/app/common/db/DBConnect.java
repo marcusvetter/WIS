@@ -87,7 +87,6 @@ public class DBConnect implements IDataProvider {
 
 	}
 
-	@Override
 	public List<BundestagMember> getBundestagMembers() {
 		List<BundestagMember> bundestagmembers = new ArrayList<BundestagMember>();
 
@@ -120,12 +119,20 @@ public class DBConnect implements IDataProvider {
 		return bundestagmembers;
 	}
 
-	@Override
 	public List<ExcessMandate> getExcessMandates() {
 		List<ExcessMandate> excessmandates = new ArrayList<ExcessMandate>();
 
-		// TODO
-
+		try {
+			ResultSet rs = executeStatement("SELECT * FROM ueberhangmandate order by bundesland, partei");
+			while (rs.next()) {
+				excessmandates.add(new ExcessMandate(
+						rs.getString("bundesland"), rs.getString("partei"), rs
+								.getString("anz_ueberhangmandate")));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			throw new DatabaseException("SELECT failed");
+		}
 		return excessmandates;
 	}
 }
