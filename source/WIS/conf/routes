@@ -6,14 +6,16 @@
 GET     /                                      controllers.Application.index()
 
 # Sitzverteilung          
-GET     /ueberblick               controllers.Application.overview(sicht: String ?= "deutschland")
-GET     /sitzverteilung           controllers.Application.seatdistribution()
-GET     /wahlkreissieger          controllers.Application.constituencywinners()
-GET     /ueberhangmandate         controllers.Application.excessmandates()
-GET     /bundestagsmitglieder     controllers.Application.bundestagmembers()
-GET     /knappegewinner/gewinner/:party    controllers.Application.narrowwinners_json(party: Int)
-GET     /knappegewinner/verlierer/:party    controllers.Application.narrowlosers_json(party: Int)
-GET     /knappegewinner           controllers.Application.narrowwinners()
+GET     /ueberblick                             controllers.Application.overview(sicht: String ?= "deutschland")
+GET     /ueberblick/wahlkreise                  controllers.Application.constituencyoverview()
+GET     /ueberblick/wahlkreise/:constituency    controllers.Application.constituencyoverview_json(constituency: Int)
+GET     /sitzverteilung                         controllers.Application.seatdistribution()
+GET     /wahlkreissieger                        controllers.Application.constituencywinners()
+GET     /ueberhangmandate                       controllers.Application.excessmandates()
+GET     /bundestagsmitglieder                   controllers.Application.bundestagmembers()
+GET     /knappegewinner/gewinner/:party         controllers.Application.narrowwinners_json(party: Int)
+GET     /knappegewinner/verlierer/:party        controllers.Application.narrowlosers_json(party: Int)
+GET     /knappegewinner                         controllers.Application.narrowwinners()
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /assets/*file                           controllers.Assets.at(path="/public", file)

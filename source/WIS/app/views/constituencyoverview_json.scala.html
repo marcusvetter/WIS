@@ -1,0 +1,19 @@
+@(votes: List[model.PartyVote], info : model.ConstituencyInfo)
+
+{
+"table": {
+cols: [
+    {id:'party', label:'Partei', type:'string'}, 
+    {id:'votes2009Absolute', label:'Absolute Stimmen 2009', type:'int'}, 
+    {id:'votes2009Percent', label:'Stimmanteil 2009', type:'float'},
+    {id:'votes2005Absolute', label:'Absolute Stimmen 2005', type:'int'}, 
+    {id:'votes2005Percent', label:'Stimmanteil 2005', type:'float'} 
+    ],
+rows: [
+    @for(vote <- votes) {
+        {c:[{v: '@vote.getParty()' }, {v:@vote.getVotes2009Absolute()}, {v:@vote.getVotes2009Percent()}, {v:@vote.getVotes2005Absolute()}, {v: @vote.getVotes2005Percent() } ]} @if(vote != votes.last) {,}
+    }
+    ]
+},
+"info": {"voterturnout": @info.getVoterturnout(), "winner": '@info.getWinnerFirstname() @info.getWinnerLastname() @info.getWinnerParty()'}
+}

@@ -7,6 +7,8 @@ import java.util.concurrent.Semaphore;
 import model.DataCache;
 import model.VoteAggregate;
 import model.Party;
+import model.Constituency;
+import model.ConstituencyInfo;
 import model.NarrowWinner;
 import play.Configuration;
 import play.mvc.Controller;
@@ -18,6 +20,8 @@ import views.html.narrowwinners_json;
 import views.html.overview;
 import views.html.seatdistribution;
 import views.html.excessmandates;
+import views.html.constituencyoverview;
+import views.html.constituencyoverview_json;
 
 import common.DataManagerThread;
 import common.db.DBConnect;
@@ -70,6 +74,25 @@ public class Application extends Controller {
 		return badRequest("Invalid parameter.");
 
 	}
+
+    /**
+     * Constituency Overview
+     */
+    public static Result constituencyoverview() {
+        initializeDataManager();
+        List<Constituency> constituencies = DataCache.getConstituencies();
+        constituencies.add(0, new Constituency(0, "--- bitte waehlen ---"));
+        return ok(constituencyoverview.render("Wahlkreisuebersicht", constituencies));
+    }
+
+    public static Result constituencyoverview_json(int constituency) {
+        initializeDataManager();
+        if (constituency == 0) {
+            return badRequest("no constituency ID was provided");
+        }
+        return ok(constituencyoverview_json.render(DataCache.getPartyVotes(constituency), DataCache.getConstituencyInfo(constituency)));
+    }
+
 
 	/**
 	 * Constituency winners

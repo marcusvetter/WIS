@@ -1,0 +1,59 @@
+@(title: String, constituencies: List[model.Constituency])
+
+@scripts = {
+    <script type="text/javascript">
+        google.load("visualization", "1", {packages:["table"]});
+        $(document).ready(function() {
+            $("#constituency_select").change(function () {
+            if ($("#constituency_select").val() != '0') {
+            var jsonData = $.ajax({
+                url: "/ueberblick/wahlkreise/"+$("#constituency_select").val(),
+                dataType:"json", async: false}).responseText;
+            jsonData = eval("("+jsonData+")");
+            var data = new google.visualization.DataTable(jsonData['table']);
+            var view = new google.visualization.DataView(data);
+            var table = new google.visualization.Table(document.getElementById('secondvotes_table'));
+            table.draw(view, {sortColumn: 4});
+            $("#voterturnout").html(jsonData['info']['voterturnout']);
+            $("#winner").html(jsonData['info']['winner']);
+            }
+            });
+        }); 
+	</script>	   
+	    
+}
+
+@submenu = {
+    <div id="submenu">
+        <a href="/ueberblick?sicht=deutschland" id="deutschland">Deutschland</a>
+        <a href="/ueberblick?sicht=bundesland" id="bundesland">Bundesländer</a>
+        <a href="/ueberblick/wahlkreise" id="wahlkreis">Wahlkreise</a>
+    </div>
+}
+
+
+@main(title, scripts, submenu){
+<center>
+    <form>
+        <select id="constituency_select" size="1">
+        @for(con <- constituencies) {
+            <option value="@con.getID()">@con.getName()</option>    
+        }
+        </select>
+    </form>
+    <div id="info_div">
+        <h2>Allgemeine Infos</h2>
+        <div id="info_table">
+            <table>
+                <tr><td>Wahlbeteiligung:</td><td><span id="voterturnout"></span></td></tr>
+                <tr><td>Gewählter Kandidat:</td><td><span id="winner"></span></td></tr>
+            </table>
+        </div>
+    </div>
+    <div id="secondvotes_div">
+        <h2>Zweitstimmen</h2>
+		<div id="secondvotes_table"></div>
+    </div>
+    </div>
+	</center>
+}

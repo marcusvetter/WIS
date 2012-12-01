@@ -11,10 +11,13 @@ import java.util.List;
 import model.Party;
 import model.BundestagMember;
 import model.ConstituencyWinner;
+import model.ConstituencyInfo;
 import model.NarrowWinner;
 import model.ExcessMandate;
 import model.SeatAggregate;
 import model.VoteAggregate;
+import model.Constituency;
+import model.PartyVote;
 
 import common.IDataProvider;
 
@@ -182,4 +185,51 @@ public class DBConnect implements IDataProvider {
 		}
 		return excessmandates;
 	}
+    
+    public List<Constituency> getConstituencies() {
+        List<Constituency> constituencies = new ArrayList<Constituency>();
+		try {
+			ResultSet rs = executeStatement("SELECT * FROM wis_wahlkreis order by id");
+			while (rs.next()) {
+				constituencies.add(new Constituency(rs.getInt("id"), rs.getString("name")));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			throw new DatabaseException("SELECT failed");
+		}
+		return constituencies;
+    }
+
+    public ConstituencyInfo getConstituencyInfo(int constituency) {
+		ConstituencyInfo info = null;
+        try {
+			ResultSet rs = executeStatement("select * from alle_wahlkreise_informationen where wahl = 2009 and wahlkreis = "+constituency);
+			if (rs.next()) {
+				info = new ConstituencyInfo(rs.getInt("wahlkreis"), rs.getString("wahlkreisname"), rs.getFloat("wahlbeteiligung"), rs.getString("vorname"), rs.getString("nachname"), rs.getString("parteiname"));
+			} else {
+			    rs.close();
+                throw new DatabaseException("Wahlkreis nicht gefunden");
+            }
+			rs.close();
+		} catch (SQLException e) {
+			throw new DatabaseException("SELECT failed");
+		}
+		return info;
+    } 
+
+
+    public List<PartyVote> getPartyVotes(int constituency) {
+        List<PartyVote> votes = new ArrayList<PartyVote>();
+		try {
+			ResultSet rs = executeStatement("select * from wahlkreise_parteistimmen_beidejahre where wahlkreis = "+constituency+" order by partei");
+			while (rs.next()) {
+				votes.add(new PartyVote(rs.getString("parteiname"), rs.getInt("absolut2009"), rs.getFloat("prozent2009"), rs.getInt("absolut2005"), rs.getFloat("prozent2005")));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			throw new DatabaseException("SELECT failed");
+		}
+		return votes;
+        
+    }
 }

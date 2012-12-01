@@ -41,11 +41,26 @@ public class DataCache {
      */
     private static HashMap<Integer, List<NarrowWinner>> narrowlosers = new HashMap<Integer, List<NarrowWinner>>();
 
-
 	/**
 	 * Cached excess mandates
 	 */
 	private static List<ExcessMandate> excessmandates = new ArrayList<ExcessMandate>();
+
+	/**
+	 * Cached constituencies 
+	 */
+    private static List<Constituency> constituencies = new ArrayList<Constituency>();
+
+    /**
+     * Cached list of party votes 
+     */
+    private static HashMap<Integer, List<PartyVote>> partyvotes = new HashMap<Integer, List<PartyVote>>();
+
+    /**
+     * Cached list of party votes 
+     */
+    private static HashMap<Integer, ConstituencyInfo> constituencyinfo = new HashMap<Integer, ConstituencyInfo>();
+
 
 	/**
 	 * Get cached seat aggregates
@@ -201,5 +216,66 @@ public class DataCache {
 	public static void setExcessMandates(List<ExcessMandate> excessmandates) {
 		DataCache.excessmandates = excessmandates;
 	}
+
+	/**
+	 * Get all parties 
+	 * 
+	 * @return list of parties
+	 */
+    public static List<Constituency> getConstituencies() {
+        return DataCache.constituencies;
+    }
+
+	/**
+	 * Set the constituencies
+	 * 
+	 * @param constituencies
+	 *            list of constituencies
+	 */
+    public static void setConstituencies(List<Constituency> constituencies) {
+        DataCache.constituencies = constituencies;
+    }
+
+	/**
+	 * Get party votes for a constituency 
+	 * 
+     * @param constituency ID of constituency
+     *
+	 * @return list of party votes
+	 */
+    public static List<PartyVote> getPartyVotes(int constituency) {
+        return DataCache.partyvotes.get(constituency);
+    }
+	
+    /**
+	 * Set party votes for a constituency 
+	 * 
+	 * @param constituency ID of constituency
+	 * @param winners list of party votes
+	 */
+    public static void setPartyVotes(int constituency, List<PartyVote> partyvotes) {
+        DataCache.partyvotes.put(constituency, partyvotes);
+    }
+	
+    /**
+	 * Get constituency info for a constituency 
+	 * 
+     * @param constituency ID of constituency
+     *
+	 * @return Constituency Info
+	 */
+    public static ConstituencyInfo getConstituencyInfo(int constituency) {
+        return DataCache.constituencyinfo.get(constituency);
+    }
+	
+    /**
+	 * Set constituency info for a constituency 
+	 * 
+	 * @param constituency ID of constituency
+	 * @param info ConstituencyInfo
+	 */
+    public static void setConstituencyInfo(int constituency, ConstituencyInfo info) {
+        DataCache.constituencyinfo.put(constituency, info);
+    }
 
 }

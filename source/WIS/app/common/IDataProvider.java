@@ -5,10 +5,13 @@ import java.util.List;
 import model.BundestagMember;
 import model.Party;
 import model.ConstituencyWinner;
+import model.ConstituencyInfo;
 import model.NarrowWinner;
 import model.ExcessMandate;
 import model.SeatAggregate;
 import model.VoteAggregate;
+import model.Constituency;
+import model.PartyVote;
 
 public interface IDataProvider {
 
@@ -71,5 +74,30 @@ public interface IDataProvider {
 	 * @return list of excess mandates
 	 */
 	List<ExcessMandate> getExcessMandates();
+
+    /**
+     * Get a list of all constituencies 
+     * 
+     * @return list of constituencies
+     */
+    List<Constituency> getConstituencies();
+    
+    /**
+     * Get a list of party votes for a constituency and election
+     * 
+     * @param constituency ID of constituency
+     *
+     * @return list of party votes
+     */
+    List<PartyVote> getPartyVotes(int constituency);
+
+    /**
+     * Get info on a constituency
+     *
+     * @param constituency ID of constituency
+     *
+     * @return ConstituencyInfo
+     */
+    ConstituencyInfo getConstituencyInfo(int constituency);
 
 }

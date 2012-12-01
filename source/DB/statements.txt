@@ -468,6 +468,22 @@ CREATE OR REPLACE VIEW alle_wahlkreise_sieger as (
 );
 
 
+CREATE OR REPLACE VIEW wahlkreise_parteistimmen_beidejahre as (
+	SELECT ps1.wahlkreis, ps1.partei, ps1.parteiname, ps1.anzahlstimmen absolut2009, ps1.prozentanteil prozent2009, ps2.anzahlstimmen absolut2005, ps2.prozentanteil prozent2005
+	FROM alle_wahlkreise_parteistimmen ps1, alle_wahlkreise_parteistimmen ps2
+	WHERE ps1.wahlkreis = ps2.wahlkreis AND ps1.partei = ps2.partei AND ps1.wahl = 2009 AND ps2.wahl = 2005
+	ORDER BY ps1.anzahlstimmen desc
+);
+
+
+
+CREATE OR REPLACE VIEW alle_wahlkreise_informationen as (
+	SELECT wb.wahl, wb.wahlkreis, wb.wahlkreisname, wb.anzahlstimmen, wb.anzahlwahlberechtigte, wb.wahlbeteiligung, k.vorname, k.nachname, p.name parteiname
+	FROM alle_wahlkreise_wahlbeteiligung wb, alle_direktkandidaten dk, wis_kandidatur ktur, wis_kandidat k, wis_partei p
+	WHERE wb.wahl = dk.wahl AND wb.wahlkreis = dk.wahlkreis AND dk.kandidat = ktur.id AND ktur.kandidat = k.id AND ktur.partei = p.id
+);
+
+
 -----------------------------------------------------------------------
 ---------------------- Anzahl der Ueberhangmandate ---------------------
 -----------------------------------------------------------------------

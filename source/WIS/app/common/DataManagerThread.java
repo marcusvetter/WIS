@@ -6,6 +6,7 @@ import java.util.concurrent.Semaphore;
 
 import model.DataCache;
 import model.Party;
+import model.Constituency;
 
 import common.db.DatabaseException;
 
@@ -51,6 +52,11 @@ public class DataManagerThread extends Thread {
                     DataCache.setNarrowLosers(p.getID(), dataProvider.getNarrowLosers(p.getID()));
                 }
 				DataCache.setExcessMandates(dataProvider.getExcessMandates());
+                DataCache.setConstituencies(dataProvider.getConstituencies());
+                for (Constituency c : DataCache.getConstituencies()) {
+                    DataCache.setPartyVotes(c.getID(), dataProvider.getPartyVotes(c.getID()));
+                    DataCache.setConstituencyInfo(c.getID(), dataProvider.getConstituencyInfo(c.getID()));
+                }
 
 				// Log
 				String date = new SimpleDateFormat("dd MMM yyyy HH:mm:ss")
