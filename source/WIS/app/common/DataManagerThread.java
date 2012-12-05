@@ -65,7 +65,7 @@ public class DataManagerThread extends Thread {
                     //printLogLine("Updated NarrowWinners for party "+p.getID());
                 }
 				DataCache.setExcessMandates(dataProvider.getExcessMandates());
-                /printLogLine("ExcessMandates updated");
+                //printLogLine("ExcessMandates updated");
                 DataCache.setConstituencies(dataProvider.getConstituencies());
                 //printLogLine("Constituencies updated");
                 for (Constituency c : DataCache.getConstituencies()) {
