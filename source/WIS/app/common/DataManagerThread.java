@@ -31,9 +31,17 @@ public class DataManagerThread extends Thread {
 	public DataManagerThread(IDataProvider dataProvider, int intervalSeconds,
 			Semaphore semaphore) {
 		this.dataProvider = dataProvider;
+        DataCache.setDataProvider(dataProvider);
 		this.intervalSeconds = intervalSeconds;
 		this.semaphore = semaphore;
 	}
+   
+
+    public static void printLogLine(String line) {
+	    String date = new SimpleDateFormat("dd MMM yyyy HH:mm:ss")
+		    .format(new Date(System.currentTimeMillis()));
+		System.out.println(date + " - " + line);
+    }
 
 	@Override
 	public void run() {
@@ -41,28 +49,36 @@ public class DataManagerThread extends Thread {
 			// Update data cache
 			try {
 				DataCache.setSeatAggregation(dataProvider.getSeatAggregation());
+                //printLogLine("SeatAggration updated");
 				DataCache.setVoteAggregation(dataProvider.getVoteAggregation());
+                //printLogLine("VoteAggration updated");
 				DataCache.setBundestagMembers(dataProvider
 						.getBundestagMembers());
+                //printLogLine("BundestagMembers updated");
 				DataCache.setConstituencyWinners(dataProvider
 						.getConstituencyWinners());
+                //printLogLine("ConstituencyWinners updated");
                 DataCache.setParties(dataProvider.getParties());
                 for (Party p : DataCache.getParties()) {
                     DataCache.setNarrowWinners(p.getID(), dataProvider.getNarrowWinners(p.getID()));
                     DataCache.setNarrowLosers(p.getID(), dataProvider.getNarrowLosers(p.getID()));
+                    //printLogLine("Updated NarrowWinners for party "+p.getID());
                 }
 				DataCache.setExcessMandates(dataProvider.getExcessMandates());
+                /printLogLine("ExcessMandates updated");
                 DataCache.setConstituencies(dataProvider.getConstituencies());
+                //printLogLine("Constituencies updated");
                 for (Constituency c : DataCache.getConstituencies()) {
-                    DataCache.setPartyVotes(c.getID(), dataProvider.getPartyVotes(c.getID()));
+                    DataCache.setPartyFirstVotes(c.getID(), dataProvider.getPartyFirstVotes(c.getID()));
+                    //printLogLine("PartyFirstVotes updated for "+c.getID());
+                    DataCache.setPartySecondVotes(c.getID(), dataProvider.getPartySecondVotes(c.getID()));
+                    //printLogLine("PartySecondVotes updated for "+c.getID());
                     DataCache.setConstituencyInfo(c.getID(), dataProvider.getConstituencyInfo(c.getID()));
+                    //printLogLine("ConstituencyInfo updated for "+c.getID());
                 }
-
-				// Log
-				String date = new SimpleDateFormat("dd MMM yyyy HH:mm:ss")
-						.format(new Date(System.currentTimeMillis()));
-				System.out.println(date
-						+ " - The data manager updated the data cache.");
+				
+                // Log
+				printLogLine("The data manager updated the data cache.");
 			} catch (DatabaseException e) {
 				e.printStackTrace();
 			}

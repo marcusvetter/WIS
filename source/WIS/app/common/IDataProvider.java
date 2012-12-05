@@ -83,13 +83,14 @@ public interface IDataProvider {
     List<Constituency> getConstituencies();
     
     /**
-     * Get a list of party votes for a constituency and election
+     * Get a list of party votes (first or second) for a constituency
      * 
      * @param constituency ID of constituency
      *
      * @return list of party votes
      */
-    List<PartyVote> getPartyVotes(int constituency);
+    List<PartyVote> getPartySecondVotes(int constituency);
+    List<PartyVote> getPartyFirstVotes(int constituency);
 
     /**
      * Get info on a constituency

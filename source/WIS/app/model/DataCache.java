@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class DataCache {
+import common.IDataProvider;
 
+public class DataCache {
+    
+    private static IDataProvider dataprovider;
 	/**
 	 * Cached list of seats
 	 */
@@ -54,13 +57,18 @@ public class DataCache {
     /**
      * Cached list of party votes 
      */
-    private static HashMap<Integer, List<PartyVote>> partyvotes = new HashMap<Integer, List<PartyVote>>();
+    private static HashMap<Integer, List<PartyVote>> partyfirstvotes = new HashMap<Integer, List<PartyVote>>();
+    private static HashMap<Integer, List<PartyVote>> partysecondvotes = new HashMap<Integer, List<PartyVote>>();
 
     /**
-     * Cached list of party votes 
+     * Cached vote data for a constituency 
      */
     private static HashMap<Integer, ConstituencyInfo> constituencyinfo = new HashMap<Integer, ConstituencyInfo>();
 
+    
+    public static void setDataProvider(IDataProvider dp) {
+        dataprovider = dp;
+    }
 
 	/**
 	 * Get cached seat aggregates
@@ -243,8 +251,24 @@ public class DataCache {
      *
 	 * @return list of party votes
 	 */
-    public static List<PartyVote> getPartyVotes(int constituency) {
-        return DataCache.partyvotes.get(constituency);
+    public static List<PartyVote> getPartySecondVotes(int constituency) {
+        if (DataCache.partysecondvotes.get(constituency) == null) {
+            List<PartyVote> l = DataCache.dataprovider.getPartySecondVotes(constituency);
+            DataCache.partysecondvotes.put(constituency, l);
+            return l;
+        } else {
+            return DataCache.partysecondvotes.get(constituency);
+        }
+    }
+    
+    public static List<PartyVote> getPartyFirstVotes(int constituency) {
+        if (DataCache.partyfirstvotes.get(constituency) == null) {
+            List<PartyVote> l = DataCache.dataprovider.getPartyFirstVotes(constituency);
+            DataCache.partyfirstvotes.put(constituency, l);
+            return l;
+        } else {
+            return DataCache.partyfirstvotes.get(constituency);
+        }
     }
 	
     /**
@@ -253,8 +277,12 @@ public class DataCache {
 	 * @param constituency ID of constituency
 	 * @param winners list of party votes
 	 */
-    public static void setPartyVotes(int constituency, List<PartyVote> partyvotes) {
-        DataCache.partyvotes.put(constituency, partyvotes);
+    public static void setPartySecondVotes(int constituency, List<PartyVote> partyvotes) {
+        DataCache.partyfirstvotes.put(constituency, partyvotes);
+    }
+    
+    public static void setPartyFirstVotes(int constituency, List<PartyVote> partyvotes) {
+        DataCache.partyfirstvotes.put(constituency, partyvotes);
     }
 	
     /**

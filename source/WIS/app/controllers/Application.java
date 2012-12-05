@@ -81,7 +81,8 @@ public class Application extends Controller {
     public static Result constituencyoverview() {
         initializeDataManager();
         List<Constituency> constituencies = DataCache.getConstituencies();
-        constituencies.add(0, new Constituency(0, "--- bitte waehlen ---"));
+        if (!constituencies.get(0).getName().equals("--- bitte waehlen ---"))
+            constituencies.add(0, new Constituency(0, "--- bitte waehlen ---"));
         return ok(constituencyoverview.render("Wahlkreisuebersicht", constituencies));
     }
 
@@ -90,7 +91,7 @@ public class Application extends Controller {
         if (constituency == 0) {
             return badRequest("no constituency ID was provided");
         }
-        return ok(constituencyoverview_json.render(DataCache.getPartyVotes(constituency), DataCache.getConstituencyInfo(constituency)));
+        return ok(constituencyoverview_json.render(DataCache.getPartyFirstVotes(constituency), DataCache.getPartySecondVotes(constituency), DataCache.getConstituencyInfo(constituency)));
     }
 
 
@@ -109,7 +110,8 @@ public class Application extends Controller {
     public static Result narrowwinners() {
         initializeDataManager();
         List<Party> parties = DataCache.getParties();
-        parties.add(0, new Party(0, "--- bitte waehlen ---"));
+        if (!parties.get(0).getName().equals("--- bitte waehlen ---"))
+            parties.add(0, new Party(0, "--- bitte waehlen ---"));
         return ok(narrowwinners.render("Knappe Gewinner", parties));
     }
 

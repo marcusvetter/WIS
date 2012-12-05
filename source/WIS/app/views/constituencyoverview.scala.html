@@ -10,10 +10,17 @@
                 url: "/ueberblick/wahlkreise/"+$("#constituency_select").val(),
                 dataType:"json", async: false}).responseText;
             jsonData = eval("("+jsonData+")");
-            var data = new google.visualization.DataTable(jsonData['table']);
+            // Draw table for first votes
+            var data = new google.visualization.DataTable(jsonData['tablefirst']);
             var view = new google.visualization.DataView(data);
-            var table = new google.visualization.Table(document.getElementById('secondvotes_table'));
+            var table = new google.visualization.Table(document.getElementById('firstvotes_table'));
             table.draw(view, {sortColumn: 4});
+            // Draw table for second votes
+            data = new google.visualization.DataTable(jsonData['tablesecond']);
+            view = new google.visualization.DataView(data);
+            table = new google.visualization.Table(document.getElementById('secondvotes_table'));
+            table.draw(view, {sortColumn: 4});
+            // Place Winner Info and voter turnout 
             $("#voterturnout").html(jsonData['info']['voterturnout']);
             $("#winner").html(jsonData['info']['winner']);
             }
@@ -49,6 +56,10 @@
                 <tr><td>Gewählter Kandidat:</td><td><span id="winner"></span></td></tr>
             </table>
         </div>
+    </div>
+    <div id="firstvotes_div">
+        <h2>Erststimmen</h2>
+		<div id="firstvotes_table"></div>
     </div>
     <div id="secondvotes_div">
         <h2>Zweitstimmen</h2>

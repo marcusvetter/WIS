@@ -218,10 +218,16 @@ public class DBConnect implements IDataProvider {
     } 
 
 
-    public List<PartyVote> getPartyVotes(int constituency) {
+    public List<PartyVote> getPartySecondVotes(int constituency) {
+        String stmt;
+        if (213 > constituency || constituency > 217) {
+            stmt = "select * from wahlkreise_parteistimmen_beidejahre where wahlkreis = "+constituency+" order by partei";
+        } else {
+            stmt = "select * from wahlkreise_parteistimmen_beidejahre_einzelstimmen where wahlkreis = "+constituency+" order by partei";
+        }
         List<PartyVote> votes = new ArrayList<PartyVote>();
 		try {
-			ResultSet rs = executeStatement("select * from wahlkreise_parteistimmen_beidejahre where wahlkreis = "+constituency+" order by partei");
+			ResultSet rs = executeStatement(stmt);
 			while (rs.next()) {
 				votes.add(new PartyVote(rs.getString("parteiname"), rs.getInt("absolut2009"), rs.getFloat("prozent2009"), rs.getInt("absolut2005"), rs.getFloat("prozent2005")));
 			}
@@ -230,6 +236,25 @@ public class DBConnect implements IDataProvider {
 			throw new DatabaseException("SELECT failed");
 		}
 		return votes;
-        
+    }
+
+    public List<PartyVote> getPartyFirstVotes(int constituency) {
+        String stmt;
+        if (213 > constituency || constituency > 217) {
+            stmt = "select * from wahlkreise_erststimmen_beidejahre where wahlkreis = "+constituency+" order by partei";
+        } else {
+            stmt = "select * from wahlkreise_erststimmen_beidejahre_einzelstimmen where wahlkreis = "+constituency+" order by partei";
+        }
+        List<PartyVote> votes = new ArrayList<PartyVote>();
+		try {
+			ResultSet rs = executeStatement(stmt);
+			while (rs.next()) {
+				votes.add(new PartyVote(rs.getString("parteiname"), rs.getInt("absolut2009"), rs.getFloat("prozent2009"), rs.getInt("absolut2005"), rs.getFloat("prozent2005")));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			throw new DatabaseException("SELECT failed");
+		}
+		return votes;
     }
 }
