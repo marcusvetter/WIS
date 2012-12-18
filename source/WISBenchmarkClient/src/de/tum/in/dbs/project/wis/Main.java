@@ -1,15 +1,16 @@
 package de.tum.in.dbs.project.wis;
 
+import java.io.File;
+import java.util.List;
+
 /**
  * Main class to start the benchmark client
  */
 public class Main {
 
 	/**
-	 * @param 1st param: CSV file with urls and amount 
-	 * 		  2nd param: Sleep time (in
-	 *        seconds) 
-	 *        3rd param: Amount of simulated clients
+	 * @param 1st param: CSV file with urls and amount 2nd param: Sleep time (in
+	 *        seconds) 3rd param: Amount of simulated clients
 	 * 
 	 */
 	public static void main(String[] args) {
@@ -32,9 +33,25 @@ public class Main {
 
 		// Log welcome
 		System.out.println("Welcome to the WIS Benchmark Client.");
-		
-		// 
 
+		// Read the configuration file
+		File f = new File(fileName);
+		if (!f.canRead()) {
+			System.out.println("Can not read the configuration file.");
+			System.out.println("Aborted.");
+			return;
+		}
+
+		// Parse the configuration file
+		List<String> websites = ConfigurationParser.parseConfiguration(f);
+
+		// Start the clients using the client manager
+		ClientManager clientManager = new ClientManager(websites,
+				amountClients, sleepTimeSec);
+		clientManager.run();
+
+		// Log finished
+		System.out.println("Finished the WIS Benchmark Client.");
 	}
 
 	private static void showStartParams() {
