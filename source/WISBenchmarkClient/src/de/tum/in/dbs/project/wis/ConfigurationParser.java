@@ -4,18 +4,29 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import au.com.bytecode.opencsv.CSVReader;
 
+/**
+ * This class is used to parse a csv file and create a list of urls
+ */
 public class ConfigurationParser {
 
+	/**
+	 * Parse a csv file and create a list with urls. The list contains the url
+	 * as often as determined in the csv file, where as the amount will be
+	 * reduced by the greatest common divisor of the amounts.
+	 * 
+	 * @param file
+	 *            csv file to parse
+	 * @return list with urls
+	 */
 	public static List<String> parseConfiguration(File file) {
-		
 
 		// List of websites
 		Map<String, Integer> websiteMap = new HashMap<String, Integer>();
@@ -32,28 +43,53 @@ public class ConfigurationParser {
 			}
 
 			// Close the reader
-
 			reader.close();
 		} catch (NumberFormatException | IOException e) {
 			e.printStackTrace();
 		}
 
-		// Create a list with strings
-		calculateGCD(websiteMap.entrySet());
-		
-		return null;
+		// Calculate the gcd
+		List<Integer> amountPerUrl = new ArrayList<Integer>();
+		Collections.addAll(amountPerUrl,
+				websiteMap.entrySet().toArray(new Integer[websiteMap.size()]));
+		int gcd = calculateGCD(amountPerUrl);
+
+		// The string list with urls
+		List<String> urlList = new ArrayList<String>();
+
+		// Calculate the amounts div gcd and create the string list
+		for (Entry<String, Integer> entry : websiteMap.entrySet()) {
+			for (int itr = 0; itr < entry.getValue() / gcd; itr++) {
+				urlList.add(entry.getKey());
+			}
+		}
+
+		return urlList;
 	}
 
-	private int calculateGCD(Set<Entry<String, Integer>> set) {
-		set.toArray(new ArrayList<Integer>());
-		int gcd = set.get(0);
-		for (int itr = 1; itr < set.size(); itr++) {
-			gcd = gcd(gcd, set.get(itr));
+	/**
+	 * Calculate the greatest common divisor out of n numbers
+	 * 
+	 * @param list
+	 *            list with integers
+	 * @return the gcd
+	 */
+	private static int calculateGCD(List<Integer> list) {
+		int gcd = list.get(0);
+		for (int itr = 1; itr < list.size(); itr++) {
+			gcd = gcd(gcd, list.get(itr));
 		}
 		return gcd;
 	}
 
-	private int gcd(int i, int j) {
+	/**
+	 * Internal method to calculate the gcd
+	 * 
+	 * @param i
+	 * @param j
+	 * @return gcd of i and j
+	 */
+	private static int gcd(int i, int j) {
 		while (j != 0) {
 			if (i > j) {
 				i = i - j;
