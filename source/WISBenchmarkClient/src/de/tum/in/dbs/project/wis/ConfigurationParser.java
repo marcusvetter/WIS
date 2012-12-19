@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +23,11 @@ public class ConfigurationParser {
 	 * 
 	 * @param file
 	 *            csv file to parse
+	 * @param delimiter
+	 *            delimiter of the csv file
 	 * @return list with urls
 	 */
-	public static List<String> parseConfiguration(File file) {
+	public static List<String> parseConfiguration(File file, char delimiter) {
 
 		// List of websites
 		Map<String, Integer> websiteMap = new HashMap<String, Integer>();
@@ -34,7 +35,7 @@ public class ConfigurationParser {
 		try {
 			// Instantiate a csv reader
 			CSVReader reader = null;
-			reader = new CSVReader(new FileReader(file), ';');
+			reader = new CSVReader(new FileReader(file), delimiter);
 
 			// Parse the csv file
 			String[] line;
@@ -50,8 +51,9 @@ public class ConfigurationParser {
 
 		// Calculate the gcd
 		List<Integer> amountPerUrl = new ArrayList<Integer>();
-		Collections.addAll(amountPerUrl,
-				websiteMap.entrySet().toArray(new Integer[websiteMap.size()]));
+		for (Entry<String, Integer> entry : websiteMap.entrySet()) {
+			amountPerUrl.add(entry.getValue());
+		}
 		int gcd = calculateGCD(amountPerUrl);
 
 		// The string list with urls

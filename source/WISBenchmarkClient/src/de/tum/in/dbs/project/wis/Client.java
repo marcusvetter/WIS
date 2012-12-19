@@ -58,10 +58,9 @@ public class Client extends Thread {
 	@Override
 	public void run() {
 
-		int rounds = this.amountCalls / this.websites.size();
+		int calls = 0;
 
-		for (int itr = 0; itr < rounds; itr++) {
-
+		outerloop: while (!Thread.interrupted()) {
 			// Shuffle the websites
 			Collections.shuffle(websites);
 
@@ -70,22 +69,30 @@ public class Client extends Thread {
 				try {
 					long startTime = System.currentTimeMillis();
 					Request.Get(website).execute().returnContent();
-					long duration = startTime - System.currentTimeMillis();
+					long duration = System.currentTimeMillis() - startTime;
+
+					calls++;
 
 					// Log
 					System.out.println("Client " + id + " called website "
 							+ website + " in " + duration + " ms.");
+					Stats.logDuration(this.id, website, duration);
 
-					// Wait
-					double sleepMilliseconds = ((new Random().nextInt(400001) / 1000000) + 0.8)
-							* sleepTimeSec * 1000;
-					Thread.sleep((long) sleepMilliseconds);
+					if (calls < this.amountCalls) {
+						// Wait (except of the last call)
+						double sleepMilliseconds = ((new Random()
+								.nextInt(400001) / 1000000) + 0.8)
+								* sleepTimeSec * 1000;
+						Thread.sleep((long) sleepMilliseconds);
+					} else {
+						// Finished (last call)
+						break outerloop;
+					}
 
 				} catch (IOException | InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-
 		}
 	}
 
