@@ -55,6 +55,9 @@ public class Main {
 		// Parse the configuration file
 		List<String> websites = ConfigurationParser.parseConfiguration(f,
 				delimiter);
+        // Each page has to be called at least once
+        if (websites.size() > amountCalls)
+            amountCalls = websites.size();
 
 		// Initialize the stats
 		Stats.initialize(websites, amountClients, amountCalls);
