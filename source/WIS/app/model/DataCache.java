@@ -7,7 +7,8 @@ import java.util.List;
 import common.IDataProvider;
 
 public class DataCache {
-    
+    public static boolean USE_CACHE = false; 
+
     private static IDataProvider dataprovider;
 	/**
 	 * Cached list of seats
@@ -75,8 +76,13 @@ public class DataCache {
 	 * 
 	 * @return seat aggregates
 	 */
-	public static List<SeatAggregate> getSeatAggregates() {
-		return DataCache.seats;
+	public static List<SeatAggregate> getSeatAggregates(boolean cache) {
+        if (cache && USE_CACHE)
+		    return DataCache.seats;
+        else
+            return dataprovider.getSeatAggregation();
+
+
 	}
 
 	/**
@@ -93,8 +99,11 @@ public class DataCache {
 	 * 
 	 * @return vote aggregates
 	 */
-	public static List<VoteAggregate> getVoteAggregates() {
-		return DataCache.votes;
+	public static List<VoteAggregate> getVoteAggregates(boolean cache) {
+        if (cache && USE_CACHE)
+		    return DataCache.votes;
+        else
+            return dataprovider.getVoteAggregation();
 	}
 
 	/**
@@ -111,8 +120,11 @@ public class DataCache {
 	 * 
 	 * @return list of cached bundestag members
 	 */
-	public static List<BundestagMember> getBundestagMembers() {
-		return DataCache.bundestagMembers;
+	public static List<BundestagMember> getBundestagMembers(boolean cache) {
+        if (cache && USE_CACHE)
+		    return DataCache.bundestagMembers;
+        else
+            return dataprovider.getBundestagMembers();
 	}
 
 	/**
@@ -131,8 +143,11 @@ public class DataCache {
 	 * 
 	 * @return list of constituency winners
 	 */
-	public static List<ConstituencyWinner> getConstituencyWinners() {
-		return DataCache.constituencyWinners;
+	public static List<ConstituencyWinner> getConstituencyWinners(boolean cache) {
+        if (cache && USE_CACHE)
+		    return DataCache.constituencyWinners;
+        else
+            return dataprovider.getConstituencyWinners();
 	}
 
 	/**
@@ -151,8 +166,11 @@ public class DataCache {
 	 * 
 	 * @return list of parties
 	 */
-    public static List<Party> getParties() {
-        return DataCache.parties;
+    public static List<Party> getParties(boolean cache) {
+        if (cache && USE_CACHE)
+            return DataCache.parties;
+        else
+            return dataprovider.getParties();
     }
 
 	/**
@@ -172,8 +190,11 @@ public class DataCache {
      *
 	 * @return list of narrow winners
 	 */
-    public static List<NarrowWinner> getNarrowWinners(int party) {
-        return DataCache.narrowwinners.get(party);
+    public static List<NarrowWinner> getNarrowWinners(int party, boolean cache) {
+        if (cache && USE_CACHE)
+            return DataCache.narrowwinners.get(party);
+        else
+            return dataprovider.getNarrowWinners(party);
     }
 	
     /**
@@ -193,8 +214,11 @@ public class DataCache {
      *
 	 * @return list of narrow losers
 	 */
-    public static List<NarrowWinner> getNarrowLosers(int party) {
-        return DataCache.narrowlosers.get(party);
+    public static List<NarrowWinner> getNarrowLosers(int party, boolean cache) {
+        if (cache && USE_CACHE)
+            return DataCache.narrowlosers.get(party);
+        else
+            return dataprovider.getNarrowLosers(party);
     }
 	
     /**
@@ -211,8 +235,11 @@ public class DataCache {
 	 * 
 	 * @return list of excess mandates
 	 */
-	public static List<ExcessMandate> getExcessMandates() {
-		return DataCache.excessmandates;
+	public static List<ExcessMandate> getExcessMandates(boolean cache) {
+        if (cache && USE_CACHE)
+		    return DataCache.excessmandates;
+        else
+            return dataprovider.getExcessMandates();
 	}
 
 	/**
@@ -230,8 +257,11 @@ public class DataCache {
 	 * 
 	 * @return list of parties
 	 */
-    public static List<Constituency> getConstituencies() {
-        return DataCache.constituencies;
+    public static List<Constituency> getConstituencies(boolean cache) {
+        if (cache && USE_CACHE)
+            return DataCache.constituencies;
+        else
+            return dataprovider.getConstituencies();
     }
 
 	/**
@@ -251,8 +281,8 @@ public class DataCache {
      *
 	 * @return list of party votes
 	 */
-    public static List<PartyVote> getPartySecondVotes(int constituency) {
-        if (DataCache.partysecondvotes.get(constituency) == null) {
+    public static List<PartyVote> getPartySecondVotes(int constituency, boolean cache) {
+        if (!(cache && USE_CACHE) || DataCache.partysecondvotes.get(constituency) == null) {
             List<PartyVote> l = DataCache.dataprovider.getPartySecondVotes(constituency);
             DataCache.partysecondvotes.put(constituency, l);
             return l;
@@ -261,9 +291,9 @@ public class DataCache {
         }
     }
     
-    public static List<PartyVote> getPartyFirstVotes(int constituency) {
-        if (DataCache.partyfirstvotes.get(constituency) == null) {
-            List<PartyVote> l = DataCache.dataprovider.getPartyFirstVotes(constituency);
+    public static List<PartyVote> getPartyFirstVotes(int constituency, boolean cache) {
+        if (!(cache && USE_CACHE) || DataCache.partyfirstvotes.get(constituency) == null) {
+            List<PartyVote> l = dataprovider.getPartyFirstVotes(constituency);
             DataCache.partyfirstvotes.put(constituency, l);
             return l;
         } else {
@@ -292,8 +322,11 @@ public class DataCache {
      *
 	 * @return Constituency Info
 	 */
-    public static ConstituencyInfo getConstituencyInfo(int constituency) {
-        return DataCache.constituencyinfo.get(constituency);
+    public static ConstituencyInfo getConstituencyInfo(int constituency, boolean cache) {
+        if (cache && USE_CACHE)
+            return DataCache.constituencyinfo.get(constituency);
+        else
+            return dataprovider.getConstituencyInfo(constituency);
     }
 	
     /**

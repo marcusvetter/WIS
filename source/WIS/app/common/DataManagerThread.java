@@ -45,6 +45,13 @@ public class DataManagerThread extends Thread {
 
 	@Override
 	public void run() {
+        if (!DataCache.USE_CACHE) { 
+			if (this.semaphore != null) {
+				this.semaphore.release();
+				this.semaphore = null;
+			}
+            return;
+        }
 		while (!this.isInterrupted()) {
 			// Update data cache
 			try {
@@ -59,7 +66,7 @@ public class DataManagerThread extends Thread {
 						.getConstituencyWinners());
                 //printLogLine("ConstituencyWinners updated");
                 DataCache.setParties(dataProvider.getParties());
-                for (Party p : DataCache.getParties()) {
+                for (Party p : DataCache.getParties(true)) {
                     DataCache.setNarrowWinners(p.getID(), dataProvider.getNarrowWinners(p.getID()));
                     DataCache.setNarrowLosers(p.getID(), dataProvider.getNarrowLosers(p.getID()));
                     //printLogLine("Updated NarrowWinners for party "+p.getID());
@@ -68,7 +75,7 @@ public class DataManagerThread extends Thread {
                 //printLogLine("ExcessMandates updated");
                 DataCache.setConstituencies(dataProvider.getConstituencies());
                 //printLogLine("Constituencies updated");
-                for (Constituency c : DataCache.getConstituencies()) {
+                for (Constituency c : DataCache.getConstituencies(true)) {
                     DataCache.setPartyFirstVotes(c.getID(), dataProvider.getPartyFirstVotes(c.getID()));
                     //printLogLine("PartyFirstVotes updated for "+c.getID());
                     DataCache.setPartySecondVotes(c.getID(), dataProvider.getPartySecondVotes(c.getID()));

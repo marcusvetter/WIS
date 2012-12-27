@@ -53,6 +53,7 @@ public class DBConnect implements IDataProvider {
 			}
 			rs.close();
 		} catch (SQLException e) {
+            e.printStackTrace();
 			throw new DatabaseException("SELECT failed");
 		}
 		return seats;

@@ -3,6 +3,7 @@ package controllers;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
+import java.util.Map;
 
 import model.DataCache;
 import model.VoteAggregate;
@@ -13,6 +14,7 @@ import model.NarrowWinner;
 import play.Configuration;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Http;
 import views.html.bundestagmembers;
 import views.html.constituencywinners;
 import views.html.narrowwinners;
@@ -38,6 +40,21 @@ public class Application extends Controller {
 	 * The thread for managing data
 	 */
 	private static DataManagerThread dataManager = null;
+    
+    /**
+     * Read GET-parameter "cache" to determine if cache should be used
+     */
+    private static boolean use_cache() {
+        Map<String, String[]> query = request().queryString();
+        if (query.get("cache") != null && query.get("cache").length > 0)
+            if (query.get("cache")[0].equals("false") || query.get("cache")[0].equals("0")) 
+                return false;
+             else 
+                return true;
+        else
+            return true;
+    }
+
 
 	/**
 	 * Index
@@ -52,21 +69,20 @@ public class Application extends Controller {
 	 */
 	public static Result overview(String view) {
 		initializeDataManager();
-
 		if (view.equals("deutschland")) {
-			List<VoteAggregate> votes = DataCache.getVoteAggregates();
+			List<VoteAggregate> votes = DataCache.getVoteAggregates(use_cache());
 			return ok(overview.render("Überblick: "
 					+ view.substring(0, 1).toUpperCase() + view.substring(1),
 					votes));
 		} else if (view.equals("bundesland")) {
 			// TODO
-			List<VoteAggregate> votes = DataCache.getVoteAggregates();
+			List<VoteAggregate> votes = DataCache.getVoteAggregates(use_cache());
 			return ok(overview.render("Überblick: "
 					+ view.substring(0, 1).toUpperCase() + view.substring(1),
 					votes));
 		} else if (view.equals("wahlkreis")) {
 			// TODO
-			List<VoteAggregate> votes = DataCache.getVoteAggregates();
+			List<VoteAggregate> votes = DataCache.getVoteAggregates(use_cache());
 			return ok(overview.render("Überblick: "
 					+ view.substring(0, 1).toUpperCase() + view.substring(1),
 					votes));
@@ -80,7 +96,7 @@ public class Application extends Controller {
      */
     public static Result constituencyoverview() {
         initializeDataManager();
-        List<Constituency> constituencies = DataCache.getConstituencies();
+        List<Constituency> constituencies = DataCache.getConstituencies(use_cache());
         if (!constituencies.get(0).getName().equals("--- bitte waehlen ---"))
             constituencies.add(0, new Constituency(0, "--- bitte waehlen ---"));
         return ok(constituencyoverview.render("Wahlkreisuebersicht", constituencies));
@@ -91,7 +107,7 @@ public class Application extends Controller {
         if (constituency == 0) {
             return badRequest("no constituency ID was provided");
         }
-        return ok(constituencyoverview_json.render(DataCache.getPartyFirstVotes(constituency), DataCache.getPartySecondVotes(constituency), DataCache.getConstituencyInfo(constituency)));
+        return ok(constituencyoverview_json.render(DataCache.getPartyFirstVotes(constituency, use_cache()), DataCache.getPartySecondVotes(constituency, use_cache()), DataCache.getConstituencyInfo(constituency, use_cache())));
     }
 
 
@@ -101,7 +117,7 @@ public class Application extends Controller {
 	public static Result constituencywinners() {
 		initializeDataManager();
 		return ok(constituencywinners.render("Wahlkreissieger",
-				DataCache.getConstituencyWinners()));
+				DataCache.getConstituencyWinners(use_cache())));
 	}
 
     /**
@@ -109,7 +125,7 @@ public class Application extends Controller {
      */
     public static Result narrowwinners() {
         initializeDataManager();
-        List<Party> parties = DataCache.getParties();
+        List<Party> parties = DataCache.getParties(use_cache());
         if (!parties.get(0).getName().equals("--- bitte waehlen ---"))
             parties.add(0, new Party(0, "--- bitte waehlen ---"));
         return ok(narrowwinners.render("Knappe Gewinner", parties));
@@ -120,7 +136,7 @@ public class Application extends Controller {
         if (party == 0) {
             return badRequest("no party ID was provided");
         }
-        return ok(narrowwinners_json.render(DataCache.getNarrowWinners(party)));
+        return ok(narrowwinners_json.render(DataCache.getNarrowWinners(party, use_cache())));
     }
     
     public static Result narrowlosers_json(int party) {
@@ -128,7 +144,7 @@ public class Application extends Controller {
         if (party == 0) {
             return badRequest("no party ID was provided");
         }
-        return ok(narrowwinners_json.render(DataCache.getNarrowLosers(party)));
+        return ok(narrowwinners_json.render(DataCache.getNarrowLosers(party, use_cache())));
     }
 
 
@@ -139,7 +155,7 @@ public class Application extends Controller {
 	public static Result seatdistribution() {
 		initializeDataManager();
 		return ok(seatdistribution.render("Sitzverteilung",
-				DataCache.getSeatAggregates()));
+				DataCache.getSeatAggregates(use_cache())));
 	}
 
 	/**
@@ -148,7 +164,7 @@ public class Application extends Controller {
 	public static Result excessmandates() {
 		initializeDataManager();
 		return ok(excessmandates.render("Überhangmandate",
-				DataCache.getExcessMandates()));
+				DataCache.getExcessMandates(use_cache())));
 	}
 
 	/**
@@ -157,7 +173,7 @@ public class Application extends Controller {
 	public static Result bundestagmembers() {
 		initializeDataManager();
 		return ok(bundestagmembers.render("Bundestagsmitglieder",
-				DataCache.getBundestagMembers()));
+				DataCache.getBundestagMembers(use_cache())));
 	}
 
 	/**
@@ -165,7 +181,6 @@ public class Application extends Controller {
 	 */
 	private static void initializeDataManager() {
 		if (Application.dataManager == null) {
-
 			// Create the database connection
 			Configuration conf = play.Play.application().configuration();
 			DBConnect db = new DBConnect(conf.getString("wisdb.connectstring"),
@@ -175,7 +190,6 @@ public class Application extends Controller {
 			// Interrupt the current data manager, if one exists
 			if (Application.dataManager != null)
 				Application.dataManager.interrupt();
-
 			/*
 			 * Create and aquire a semaphore, because the data cache is empty.
 			 * The data manager will release the semaphore as soon as the data
@@ -191,5 +205,6 @@ public class Application extends Controller {
 				e.printStackTrace();
 			}
 		}
+
 	}
 }
