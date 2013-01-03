@@ -99,7 +99,7 @@ public class CSVDataWriter {
 						}
 
 						// Write
-						writer.append(voteId + ";" + refId + ";"
+						writer.append(refId + ";"
 								+ constituencyId + "\n");
 
 						voteId++;
@@ -111,7 +111,7 @@ public class CSVDataWriter {
 					if (referencedIdList.size() == 1) {
 						refAggregatedId = referencedIdList.get(0);
 
-						writer.append(voteId + ";" + refAggregatedId + ";"
+						writer.append(refAggregatedId + ";"
 								+ constituencyId + ";" + votes + "\n");
 						voteId++;
 
@@ -134,8 +134,7 @@ public class CSVDataWriter {
 						// Write the votes for the references
 						for (Entry<Integer, Integer> entry : votesForReference
 								.entrySet()) {
-							writer.append(voteId + ";"
-									+ referencedIdList.get(entry.getKey())
+							writer.append(referencedIdList.get(entry.getKey())
 									+ ";" + constituencyId + ";"
 									+ entry.getValue() + "\n");
 							voteId++;
