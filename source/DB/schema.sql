@@ -7,7 +7,8 @@ create table wis_partei (
         id integer primary key,
         name varchar(1000),
         kurzname varchar(10),
-        nationaleminderheit boolean
+        nationaleminderheit boolean,
+		displaycolor varchar(100)
 );
 
 create table wis_wahlkreis (
@@ -57,37 +58,31 @@ create table wis_kandidatur (
 );
 
 create table wis_erststimme (
-	id integer primary key,
 	fuerkandidat integer references wis_kandidatur not null,
 	abgegebenin integer references wis_wahlbezirk not null
 );
 
 create table wis_zweitstimme (
-	id integer primary key,
 	fuerliste integer references wis_landesliste not null,
 	abgegebenin integer references wis_wahlbezirk not null
 );
 
 create table wis_erststimmenergebnis (
-	id integer primary key,
 	fuerkandidatur integer references wis_kandidatur not null,
 	inwahlkreis integer references wis_wahlkreis not null,
 	anzahlstimmen integer not null,
-	berechnetam timestamp not null,
+	berechnetam timestamp not null DEFAULT ('now'::text)::timestamp without time zone,
 	valid boolean default true,
 	wahl integer references wis_bundestagswahl
 );
 
 create table wis_zweitstimmenergebnis (
-	id integer primary key,
 	fuerliste integer references wis_landesliste not null,
 	inwahlkreis integer references wis_wahlkreis not null,
 	anzahlstimmen integer not null,
-	berechnetam timestamp not null,
+	berechnetam timestamp not null DEFAULT ('now'::text)::timestamp without time zone,
 	valid boolean default true,
 	wahl integer references wis_bundestagswahl
 );
 
-create sequence seq_wis_erststimmergebnis increment 1 minvalue 1 start 1;
-create sequence seq_wis_zweitstimmergebnis increment 1 minvalue 1 start 1;
 

@@ -1,5 +1,5 @@
 -------------------------------------------------
-------- Aggregationsergebnisse berechnen --------
+-------- Aggregation auf Wahlkreisebene ---------
 -------------------------------------------------
 
 insert into wis_zweitstimmenergebnis 
@@ -21,6 +21,8 @@ from (
 ) a;
 
 
+
+
 -------------------------------------------------
 ----------- Berechnung Sitzverteilung -----------
 -------------------------------------------------
@@ -34,71 +36,6 @@ create or replace view bundesland_zweitstimmenergebnisse as (
 	and btwahl.jahr = 2009
 	group by wkreis.bundesland, ll.partei
 );
-
-create or replace view bundesland_zweitstimmenergebnisse_bereinigt as (
-	with prozentanteile as (
-		select partei, sum(anzahlstimmen) * 1.0 / (select sum(anzahlstimmen) from bundesland_zweitstimmenergebnisse) as prozent
-		from bundesland_zweitstimmenergebnisse
-		group by partei
-	), direktkanidaten_sum as (
-		select partei, sum(anz_direktmandate) as anz_direktmandate
-		from direktkandidaten_bundesland
-		group by partei
-	)
-	
-		select zserg.*
-		from bundesland_zweitstimmenergebnisse zserg
-			 join wis_partei p on zserg.partei = p.id
-			 join prozentanteile prozant on prozant.partei = p.id
-		     left outer join direktkanidaten_sum direkt_sum on direkt_sum.partei = p.id
-		where p.nationaleminderheit 
-		or prozant.prozent >= 0.05
-		or direkt_sum.anz_direktmandate >= 3
-);
-
-create or replace view bundesland_partei_sitze as (
-	with recursive v_stimmen as (
-		select partei, sum(anzahlstimmen) anzahlstimmen from bundesland_zweitstimmenergebnisse_bereinigt group by partei
-	)
-	, v_e as (
-		select partei, 0.5 as divisor, anzahlstimmen, cast(anzahlstimmen as double precision) / cast(0.5 as double precision) as ergebnis
-		from v_stimmen
-		union all
-		select  diverg.partei, diverg.divisor + 1.0, diverg.anzahlstimmen, cast(diverg.anzahlstimmen as double precision)/ (diverg.divisor + cast(1.0 as double precision)) as ergebnis
-		from v_stimmen zserg, v_e diverg
-		where zserg.partei = diverg.partei
-		and diverg.divisor < ((128 / (select count(*) from wis_partei)) * 598) + 1
-	),
-	v_parteisitze as (
-		select a.partei, count(*) anzahl from (
-		select e.*, row_number() over (order by e.ergebnis desc) num from v_e e 
-		order by e.ergebnis desc
-		) a where num <= 598
-		group by a.partei
-	),
-	v_blandverteilung as(
-	select b.partei, b.bundesland, 0.5 divisor, b.anzahlstimmen, b.anzahlstimmen/0.5 ergebnis from bundesland_zweitstimmenergebnisse_bereinigt b
-	union all
-	select b.partei, b.bundesland, v.divisor+1.0, b.anzahlstimmen, b.anzahlstimmen/(v.divisor+1.0)
-	from v_blandverteilung v, bundesland_zweitstimmenergebnisse_bereinigt b
-	where v.partei = b.partei and v.bundesland = b.bundesland
-	and v.divisor < 300
-	)
-
-	select vert.bundesland, vert.partei, count(*) sitze
-	from (
-		select a.* from (
-			select b.*, row_number() over (partition by partei order by ergebnis desc) num from v_blandverteilung b order by partei, ergebnis desc
-		) a,
-		v_parteisitze ps 
-		where a.partei = ps.partei
-		and a.num <= ps.anzahl
-	) vert
-	group by vert.partei, vert.bundesland
-	order by bundesland, partei
-);
-
-
 
 create or replace view direktkandidaten as (
 	select gewinner.wahlkreis, gewinner.kandidat, kand.partei, wkreis.bundesland
@@ -126,6 +63,73 @@ create or replace view direktkandidaten_bundesland as (
 	group by direkt.bundesland, direkt.partei
 );
 
+create or replace view bundesland_zweitstimmenergebnisse_bereinigt as (
+	with prozentanteile as (
+		select partei, sum(anzahlstimmen) * 1.0 / (select sum(anzahlstimmen) from bundesland_zweitstimmenergebnisse) as prozent
+		from bundesland_zweitstimmenergebnisse
+		group by partei
+	), direktkanidaten_sum as (
+		select partei, sum(anz_direktmandate) as anz_direktmandate
+		from direktkandidaten_bundesland
+		group by partei
+	)
+		select zserg.*
+		from bundesland_zweitstimmenergebnisse zserg
+			 join wis_partei p on zserg.partei = p.id
+			 join prozentanteile prozant on prozant.partei = p.id
+		     left outer join direktkanidaten_sum direkt_sum on direkt_sum.partei = p.id
+		where p.nationaleminderheit 
+		or prozant.prozent >= 0.05
+		or direkt_sum.anz_direktmandate >= 3
+);
+
+create or replace view bundesland_partei_sitze as (
+	with recursive v_zweitstimmen as (
+		select * from bundesland_zweitstimmenergebnisse_bereinigt
+	),
+	v_stimmen as (
+		select partei, cast(sum(anzahlstimmen) as double precision) anzahlstimmen from v_zweitstimmen group by partei
+	),
+	v_e as (
+		select partei, 0.5 as divisor, anzahlstimmen, anzahlstimmen / 0.5 as ergebnis
+		from v_stimmen
+		union all
+		select  diverg.partei, diverg.divisor + 1.0, diverg.anzahlstimmen, cast(diverg.anzahlstimmen as double precision)/ (diverg.divisor + cast(1.0 as double precision)) as ergebnis
+		from v_stimmen zserg, v_e diverg
+		where zserg.partei = diverg.partei
+		and diverg.divisor < 599
+	),
+	v_parteisitze as (
+		select a.partei, count(*) anzahl from (
+		select e.*, row_number() over (order by e.ergebnis desc) num from v_e e 
+		order by e.ergebnis desc
+		) a where num < 599
+		group by a.partei
+	),
+	v_zweitstimmen_max as (
+		SELECT zs.*, ps.anzahl FROM v_zweitstimmen zs
+		JOIN v_parteisitze ps ON zs.partei = ps.partei
+	),
+	v_blandverteilung as(
+		select b.partei, b.bundesland, 0.5 divisor, b.anzahlstimmen, b.anzahlstimmen/0.5 ergebnis from v_zweitstimmen_max b
+		union all
+		select b.partei, b.bundesland, v.divisor+1.0, b.anzahlstimmen, b.anzahlstimmen/(v.divisor+1.0)
+		from v_blandverteilung v, v_zweitstimmen_max b
+		where v.partei = b.partei and v.bundesland = b.bundesland
+		and v.divisor < b.anzahl
+	)
+	select vert.bundesland, vert.partei, count(*) sitze
+	from (
+		select a.* from (
+			select b.*, row_number() over (partition by partei order by ergebnis desc) num from v_blandverteilung b
+		) a, v_parteisitze ps 
+		where a.partei = ps.partei
+		and a.num <= ps.anzahl
+	) vert
+	group by vert.partei, vert.bundesland
+	order by bundesland, partei
+);
+
 create or replace view bundesland_partei_listenplaetze as (
 	select zweitsitze.bundesland, zweitsitze.partei, case when zweitsitze.sitze - coalesce(direkt.anz_direktmandate, 0) < 0 then 0 else zweitsitze.sitze - coalesce(direkt.anz_direktmandate, 0) end as listenplaetze
 	from bundesland_partei_sitze zweitsitze left outer join direktkandidaten_bundesland direkt
@@ -145,6 +149,7 @@ from (select ll.bundesland, ll.partei, kand.id as kandidat, kand.listenplatz
                     from direktkandidaten)
       order by ll.bundesland, ll.partei, kand.listenplatz) as a
 );
+
 
 create or replace view listenmandate as (
 	select lplaetze.bundesland, lplaetze.partei, lplaetze.kandidat, lplaetze.listenplatz
@@ -170,11 +175,30 @@ create or replace view sitzverteilung as (
 	group by m.partei, p.name
 );
 
-
 create or replace view gewaehlte_bewerber (bundesland, partei, vorname, nachname, wahlkreis, listenplatz) as (
 	select bl.name, p.name, k.nachname, k.vorname, m.wahlkreis, m.listenplatz from mandate m, wis_kandidatur ktur, wis_kandidat k, wis_partei p, wis_bundesland bl
 	where m.kandidat = ktur.id and ktur.kandidat = k.id and m.partei = p.id and m.bundesland = bl.id
 	order by m.bundesland, m.partei, wahlkreis, listenplatz	
+);
+
+create or replace view bundesland_partei_listenplaetze as (
+	select zweitsitze.bundesland, zweitsitze.partei, case when zweitsitze.sitze - coalesce(direkt.anz_direktmandate, 0) < 0 then 0 else zweitsitze.sitze - coalesce(direkt.anz_direktmandate, 0) end as listenplaetze
+	from bundesland_partei_sitze zweitsitze left outer join direktkandidaten_bundesland direkt
+	on zweitsitze.partei = direkt.partei
+	and zweitsitze.bundesland = direkt.bundesland
+);
+
+create or replace view bundesland_partei_listenplaetze_ohne_direktkandidaten as (
+select bundesland, partei, kandidat, row_number() OVER (PARTITION BY bundesland, partei) as listenplatz
+from (select ll.bundesland, ll.partei, kand.id as kandidat, kand.listenplatz
+      from wis_bundestagswahl btwahl, wis_landesliste ll, wis_kandidatur kand
+      where btwahl.jahr = 2009
+      and btwahl.id = ll.wahl
+      and kand.landesliste = ll.id
+      and kand.listenplatz is not null
+      and kand.id not in (select kandidat
+                    from direktkandidaten)
+      order by ll.bundesland, ll.partei, kand.listenplatz) as a
 );
 
 
@@ -202,8 +226,9 @@ create or replace view partei_erststimmen_zweitstimmen_deutschland as (
 );
 
 
+
 -----------------------------------------------------------------------
---------- Ergebnisberechnung f?r alle Wahlen (mit Spalte wahl) --------
+--------- Ergebnisberechnung fuer alle Wahlen (mit Spalte wahl) --------
 -----------------------------------------------------------------------
 
 
@@ -387,21 +412,38 @@ CREATE OR REPLACE VIEW alle_wahlkreise_wahlbeteiligung AS (
 );
 
 
-CREATE OR REPLACE VIEW alle_wahlkreise_parteistimmen as (
-	WITH v_zweitstimmen as (
-		SELECT btwahl.jahr wahl, e.inwahlkreis wahlkreis, sum(e.anzahlstimmen) stimmenwahlkreis
-		FROM wis_zweitstimmenergebnis e, wis_bundestagswahl btwahl
-		WHERE e.wahl = btwahl.id
-		GROUP BY btwahl.jahr, e.inwahlkreis
-	)
-	SELECT a.wahl, a.wahlkreis, wk.name wahlkreisname, a.partei, p.name parteiname, a.anzahlstimmen, a.anzahlstimmen * 1.0/a.stimmenwahlkreis prozentanteil
-	FROM (
-		SELECT btwahl.jahr wahl, e.inwahlkreis wahlkreis, ll.partei, sum(e.anzahlstimmen) anzahlstimmen, zs.stimmenwahlkreis
-		FROM wis_zweitstimmenergebnis e, wis_bundestagswahl btwahl, wis_landesliste ll, v_zweitstimmen zs
-		WHERE e.wahl = btwahl.id AND e.fuerliste = ll.id and btwahl.jahr = zs.wahl and e.inwahlkreis = zs.wahlkreis 
-		GROUP BY btwahl.jahr, e.inwahlkreis, ll.partei, zs.stimmenwahlkreis
-	) a, wis_partei p, wis_wahlkreis wk
-	WHERE a.partei = p.id AND a.wahlkreis = wk.id
+CREATE OR REPLACE VIEW alle_wahlkreise_parteistimmen AS (
+ WITH v_zweitstimmen AS (
+         SELECT btwahl.jahr AS wahl, e.inwahlkreis AS wahlkreis, 
+            sum(e.anzahlstimmen) AS stimmenwahlkreis
+           FROM wis_zweitstimmenergebnis e, wis_bundestagswahl btwahl
+          WHERE e.wahl = btwahl.id
+          GROUP BY btwahl.jahr, e.inwahlkreis
+        )
+ SELECT a.wahl, a.wahlkreis, wk.name AS wahlkreisname, a.partei, 
+    p.name AS parteiname, a.anzahlstimmen, 
+    a.anzahlstimmen::numeric * 1.0 / a.stimmenwahlkreis::numeric AS prozentanteil, 
+    row_number() OVER (PARTITION BY a.wahl, a.wahlkreis ORDER BY a.anzahlstimmen DESC) AS platzierung
+   FROM ( SELECT btwahl.jahr AS wahl, e.inwahlkreis AS wahlkreis, ll.partei, 
+            sum(e.anzahlstimmen) AS anzahlstimmen, zs.stimmenwahlkreis
+           FROM wis_zweitstimmenergebnis e, wis_bundestagswahl btwahl, 
+            wis_landesliste ll, v_zweitstimmen zs
+          WHERE e.wahl = btwahl.id AND e.fuerliste = ll.id AND btwahl.jahr = zs.wahl AND e.inwahlkreis = zs.wahlkreis
+          GROUP BY btwahl.jahr, e.inwahlkreis, ll.partei, zs.stimmenwahlkreis) a, 
+    wis_partei p, wis_wahlkreis wk
+  WHERE a.partei = p.id AND a.wahlkreis = wk.id
+);
+
+CREATE OR REPLACE VIEW alle_wahlkreise_erststimmen as (
+	WITH v_gesamt as (
+		SELECT e.wahl, e.inwahlkreis, sum(e.anzahlstimmen) gesamtstimmen
+		FROM wis_erststimmenergebnis e
+		GROUP BY e.wahl, e.inwahlkreis
+	)	
+	SELECT btwahl.jahr wahl, wk.id wahlkreis, wk.name wahlkreisname, p.id partei, p.name parteiname, e.anzahlstimmen, e.anzahlstimmen * 1.0/g.gesamtstimmen prozentanteil
+	FROM wis_erststimmenergebnis e, wis_kandidatur ktur, wis_kandidat k, wis_partei p, wis_wahlkreis wk, wis_bundestagswahl btwahl, v_gesamt g
+	WHERE e.fuerkandidatur = ktur.id AND ktur.kandidat = k.id AND ktur.partei = p.id AND e.inwahlkreis = wk.id 
+		AND btwahl.id = e.wahl AND g.wahl = e.wahl AND g.inwahlkreis = e.inwahlkreis
 );
 
 
@@ -455,7 +497,6 @@ CREATE OR REPLACE VIEW alle_wahlkreise_knappste_verlierer as (
 	WHERE v.wahlkreis = wk.id AND v.partei = p.id AND v.kandidat = k.id AND v.diffreihenfolge <= 10
 );
 
-
 CREATE OR REPLACE VIEW alle_wahlkreise_sieger as (
 	WITH v_direktpartei as (
 		SELECT dk.wahl, dk.wahlkreis, dk.partei, p.name parteiname
@@ -467,21 +508,100 @@ CREATE OR REPLACE VIEW alle_wahlkreise_sieger as (
 	WHERE ps.wahl = ds.wahl AND ps.wahlkreis = ds.wahlkreis
 );
 
-
 CREATE OR REPLACE VIEW wahlkreise_parteistimmen_beidejahre as (
+WITH v_temp AS (
+	SELECT ps1.wahl, ps1.wahlkreis, ps1.partei, ps1.parteiname, ps1.anzahlstimmen anzahlstimmen, ps1.prozentanteil prozentanteil
+	FROM alle_wahlkreise_parteistimmen ps1
+)
 	SELECT ps1.wahlkreis, ps1.partei, ps1.parteiname, ps1.anzahlstimmen absolut2009, ps1.prozentanteil prozent2009, ps2.anzahlstimmen absolut2005, ps2.prozentanteil prozent2005
-	FROM alle_wahlkreise_parteistimmen ps1, alle_wahlkreise_parteistimmen ps2
+	FROM v_temp ps1, v_temp ps2
 	WHERE ps1.wahlkreis = ps2.wahlkreis AND ps1.partei = ps2.partei AND ps1.wahl = 2009 AND ps2.wahl = 2005
 	ORDER BY ps1.anzahlstimmen desc
 );
 
 
+CREATE OR REPLACE VIEW wahlkreise_erststimmen_beidejahre as (
+WITH v_temp as (
+	SELECT ps1.wahl, ps1.wahlkreis, ps1.partei, ps1.parteiname, ps1.anzahlstimmen, ps1.prozentanteil
+	FROM alle_wahlkreise_erststimmen ps1
+)
+	SELECT ps1.wahlkreis, ps1.partei, ps1.parteiname, ps1.anzahlstimmen absolut2009, ps1.prozentanteil prozent2009, ps2.anzahlstimmen absolut2005, ps2.prozentanteil prozent2005
+	FROM v_temp ps1, v_temp ps2
+	WHERE ps1.wahlkreis = ps2.wahlkreis AND ps1.partei = ps2.partei AND ps1.wahl = 2009 AND ps2.wahl = 2005
+	ORDER BY ps1.anzahlstimmen desc
+);
 
 CREATE OR REPLACE VIEW alle_wahlkreise_informationen as (
 	SELECT wb.wahl, wb.wahlkreis, wb.wahlkreisname, wb.anzahlstimmen, wb.anzahlwahlberechtigte, wb.wahlbeteiligung, k.vorname, k.nachname, p.name parteiname
 	FROM alle_wahlkreise_wahlbeteiligung wb, alle_direktkandidaten dk, wis_kandidatur ktur, wis_kandidat k, wis_partei p
 	WHERE wb.wahl = dk.wahl AND wb.wahlkreis = dk.wahlkreis AND dk.kandidat = ktur.id AND ktur.kandidat = k.id AND ktur.partei = p.id
 );
+
+
+-------------------------------------------------------------------------
+---------- wahlkreise_x_beidejahre als table functions ------------------
+-------------------------------------------------------------------------
+
+-- $1 wahl, $2 wahlkreis
+CREATE FUNCTION alle_wahlkreise_parteistimmen_func(int, int) RETURNS TABLE(wahlkreisname text, partei int, parteiname text, anzahlstimmen bigint, prozentanteil numeric, platzierung bigint)
+AS $$ 
+ WITH v_zweitstimmen AS (
+         SELECT sum(e.anzahlstimmen) AS stimmenwahlkreis
+           FROM wis_zweitstimmenergebnis e, wis_bundestagswahl btwahl
+          WHERE e.wahl = btwahl.id AND btwahl.jahr = $1 AND e.inwahlkreis = $2
+        )
+ SELECT wk.name AS wahlkreisname, a.partei, p.name AS parteiname, 
+	a.anzahlstimmen, a.anzahlstimmen::numeric * 1.0 / a.stimmenwahlkreis::numeric AS prozentanteil, 	
+	row_number() OVER (ORDER BY a.anzahlstimmen DESC) AS platzierung
+ FROM ( 	SELECT ll.partei, sum(e.anzahlstimmen) AS anzahlstimmen, zs.stimmenwahlkreis
+		FROM wis_zweitstimmenergebnis e, wis_bundestagswahl btwahl, wis_landesliste ll, v_zweitstimmen zs
+		WHERE e.wahl = btwahl.id AND btwahl.jahr = $1 AND e.fuerliste = ll.id AND e.inwahlkreis = $2
+		GROUP BY ll.partei, zs.stimmenwahlkreis
+	) a, 
+	wis_partei p, wis_wahlkreis wk
+ WHERE a.partei = p.id AND wk.id = $2
+$$
+LANGUAGE SQL;
+
+-- $1 wahlkreis
+CREATE OR REPLACE FUNCTION wahlkreise_parteistimmen_beidejahre(int) RETURNS TABLE(partei int, parteiname text, absolut2009 bigint, prozent2009 numeric, absolut2005 bigint, prozent2005 numeric)
+AS $$ 
+	WITH v_temp AS (
+		SELECT ps1.wahl, ps1.partei, ps1.parteiname, ps1.anzahlstimmen anzahlstimmen, ps1.prozentanteil prozentanteil
+		FROM alle_wahlkreise_parteistimmen ps1 WHERE wahlkreis = $1
+	)
+	SELECT ps1.partei, ps1.parteiname, ps1.anzahlstimmen absolut2009, ps1.prozentanteil prozent2009, ps2.anzahlstimmen absolut2005, ps2.prozentanteil prozent2005
+	FROM alle_wahlkreise_parteistimmen_func(2009, $1) ps1, alle_wahlkreise_parteistimmen_func(2005, $1) ps2
+	WHERE ps1.partei = ps2.partei --AND ps1.wahl = 2009 AND ps2.wahl = 2005
+	ORDER BY ps1.anzahlstimmen desc
+$$
+LANGUAGE SQL;
+
+-- $1 jahr $2 wahlkreis
+CREATE FUNCTION alle_wahlkreise_erststimmen_func(int, int) RETURNS TABLE(partei int, parteiname text, anzahlstimmen int, prozentanteil numeric)
+AS $$ 
+	WITH v_temp as (
+		SELECT e.* FROM wis_erststimmenergebnis e join wis_bundestagswahl btwahl ON btwahl.id = e.wahl AND btwahl.jahr = $1 AND e.inwahlkreis = $2
+	),
+	 v_gesamt as (
+		SELECT sum(e.anzahlstimmen) gesamtstimmen
+		FROM v_temp e
+	)	
+	SELECT p.id partei, p.name parteiname, e.anzahlstimmen, e.anzahlstimmen * 1.0/g.gesamtstimmen prozentanteil
+	FROM v_temp e, wis_kandidatur ktur, wis_kandidat k, wis_partei p, v_gesamt g
+	WHERE e.fuerkandidatur = ktur.id AND ktur.kandidat = k.id AND ktur.partei = p.id AND e.inwahlkreis = $2
+$$
+LANGUAGE SQL;
+
+-- $1 wahlkreis
+CREATE FUNCTION wahlkreise_erststimmen_beidejahre(int) RETURNS TABLE(wahlkreis int, partei int, parteiname text, absolut2009 int, prozent2009 numeric, absolut2005 int, prozent2005 numeric)
+AS $$ 
+	SELECT $1, ps1.partei, ps1.parteiname, ps1.anzahlstimmen absolut2009, ps1.prozentanteil prozent2009, ps2.anzahlstimmen absolut2005, ps2.prozentanteil prozent2005
+	FROM alle_wahlkreise_erststimmen_func(2009, $1) ps1, alle_wahlkreise_erststimmen_func(2005, $1) ps2
+	WHERE  ps1.partei = ps2.partei
+	ORDER BY ps1.anzahlstimmen desc
+$$
+LANGUAGE SQL;
 
 
 -----------------------------------------------------------------------
@@ -495,9 +615,7 @@ CREATE OR REPLACE VIEW ueberhangmandate AS (
         AND listenplaetze.partei = direktkandidaten.partei
         AND listenplaetze.bundesland = bland.id
         AND listenplaetze.partei = partei.id
-)
-
-
+);
 
 
 -------------------------------------------------------------------
@@ -567,43 +685,31 @@ CREATE OR REPLACE VIEW alle_wahlkreise_informationen_einzelstimmen as (
 
 
 CREATE OR REPLACE VIEW alle_wahlkreise_parteistimmen_einzelstimmen as (
-	WITH v_zweitstimmen as (
+	WITH v_temp as (
+		SELECT * FROM zweitstimmenergebnis_einzelstimmen
+	),
+	v_zweitstimmen as (
 		SELECT btwahl.jahr wahl, e.inwahlkreis wahlkreis, sum(e.anzahlstimmen) stimmenwahlkreis
-		FROM zweitstimmenergebnis_einzelstimmen e, wis_bundestagswahl btwahl
+		FROM v_temp e, wis_bundestagswahl btwahl
 		WHERE e.wahl = btwahl.id
 		GROUP BY btwahl.jahr, e.inwahlkreis
 	)
 	SELECT a.wahl, a.wahlkreis, wk.name wahlkreisname, a.partei, p.name parteiname, a.anzahlstimmen, a.anzahlstimmen * 1.0/a.stimmenwahlkreis prozentanteil
 	FROM (
 		SELECT btwahl.jahr wahl, e.inwahlkreis wahlkreis, ll.partei, sum(e.anzahlstimmen) anzahlstimmen, zs.stimmenwahlkreis
-		FROM zweitstimmenergebnis_einzelstimmen e, wis_bundestagswahl btwahl, wis_landesliste ll, v_zweitstimmen zs
+		FROM v_temp e, wis_bundestagswahl btwahl, wis_landesliste ll, v_zweitstimmen zs
 		WHERE e.wahl = btwahl.id AND e.fuerliste = ll.id and btwahl.jahr = zs.wahl and e.inwahlkreis = zs.wahlkreis 
 		GROUP BY btwahl.jahr, e.inwahlkreis, ll.partei, zs.stimmenwahlkreis
 	) a, wis_partei p, wis_wahlkreis wk
 	WHERE a.partei = p.id AND a.wahlkreis = wk.id
 );
 
-
 CREATE OR REPLACE VIEW wahlkreise_parteistimmen_beidejahre_einzelstimmen as (
 	SELECT ps1.wahlkreis, ps1.partei, ps1.parteiname, ps1.anzahlstimmen absolut2009, ps1.prozentanteil prozent2009, ps2.anzahlstimmen absolut2005, ps2.prozentanteil prozent2005
-	FROM alle_wahlkreise_parteistimmen_einzelstimmen ps1, alle_wahlkreise_parteistimmen_einzelstimmen ps2
+	FROM alle_wahlkreise_parteistimmen_einzelstimmen ps1, alle_wahlkreise_parteistimmen ps2
 	WHERE ps1.wahlkreis = ps2.wahlkreis AND ps1.partei = ps2.partei AND ps1.wahl = 2009 AND ps2.wahl = 2005
 	ORDER BY ps1.anzahlstimmen desc
 );
-
-
-CREATE OR REPLACE VIEW alle_wahlkreise_erststimmen as (
-	WITH v_gesamt as (
-		SELECT e.wahl, e.inwahlkreis, sum(e.anzahlstimmen) gesamtstimmen
-		FROM wis_erststimmenergebnis e
-		GROUP BY e.wahl, e.inwahlkreis
-	)	
-	SELECT btwahl.jahr wahl, wk.id wahlkreis, wk.name wahlkreisname, p.id partei, p.name parteiname, e.anzahlstimmen, e.anzahlstimmen * 1.0/g.gesamtstimmen prozentanteil
-	FROM wis_erststimmenergebnis e, wis_kandidatur ktur, wis_kandidat k, wis_partei p, wis_wahlkreis wk, wis_bundestagswahl btwahl, v_gesamt g
-	WHERE e.fuerkandidatur = ktur.id AND ktur.kandidat = k.id AND ktur.partei = p.id AND e.inwahlkreis = wk.id 
-		AND btwahl.id = e.wahl AND g.wahl = e.wahl AND g.inwahlkreis = e.inwahlkreis
-);
-
 
 CREATE OR REPLACE VIEW alle_wahlkreise_erststimmen_einzelstimmen as (
 	WITH v_gesamt as (
@@ -617,7 +723,6 @@ CREATE OR REPLACE VIEW alle_wahlkreise_erststimmen_einzelstimmen as (
 		AND btwahl.id = e.wahl AND g.wahl = e.wahl AND g.inwahlkreis = e.inwahlkreis
 );
 
-
 CREATE OR REPLACE VIEW wahlkreise_erststimmen_beidejahre_einzelstimmen as (
 	SELECT ps1.wahlkreis, ps1.partei, ps1.parteiname, ps1.anzahlstimmen absolut2009, ps1.prozentanteil prozent2009, ps2.anzahlstimmen absolut2005, ps2.prozentanteil prozent2005
 	FROM alle_wahlkreise_erststimmen_einzelstimmen ps1, alle_wahlkreise_erststimmen ps2
@@ -625,11 +730,4 @@ CREATE OR REPLACE VIEW wahlkreise_erststimmen_beidejahre_einzelstimmen as (
 	ORDER BY ps1.anzahlstimmen desc
 );
 
-
-CREATE OR REPLACE VIEW wahlkreise_erststimmen_beidejahre as (
-	SELECT ps1.wahlkreis, ps1.partei, ps1.parteiname, ps1.anzahlstimmen absolut2009, ps1.prozentanteil prozent2009, ps2.anzahlstimmen absolut2005, ps2.prozentanteil prozent2005
-	FROM alle_wahlkreise_parteistimmen ps1, alle_wahlkreise_parteistimmen ps2
-	WHERE ps1.wahlkreis = ps2.wahlkreis AND ps1.partei = ps2.partei AND ps1.wahl = 2009 AND ps2.wahl = 2005
-	ORDER BY ps1.anzahlstimmen desc
-);
 
