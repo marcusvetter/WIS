@@ -11,6 +11,7 @@ import model.Party;
 import model.Constituency;
 import model.ConstituencyInfo;
 import model.NarrowWinner;
+import model.ExcessMandate;
 import play.Configuration;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -27,6 +28,7 @@ import views.html.constituencyoverview_json;
 
 import common.DataManagerThread;
 import common.db.DBConnect;
+
 
 public class Application extends Controller {
 
@@ -101,7 +103,7 @@ public class Application extends Controller {
             constituencies.add(0, new Constituency(0, "--- bitte waehlen ---"));
         return ok(constituencyoverview.render("Wahlkreisuebersicht", constituencies));
     }
-
+    
     public static Result constituencyoverview_json(int constituency) {
         initializeDataManager();
         if (constituency == 0) {
@@ -130,7 +132,7 @@ public class Application extends Controller {
             parties.add(0, new Party(0, "--- bitte waehlen ---"));
         return ok(narrowwinners.render("Knappe Gewinner", parties));
     }
-
+    
     public static Result narrowwinners_json(int party) {
         initializeDataManager();
         if (party == 0) {
@@ -161,11 +163,12 @@ public class Application extends Controller {
 	/**
 	 * Excess mandates
 	 */
-	public static Result excessmandates() {
+    public static Result excessmandates() {
 		initializeDataManager();
 		return ok(excessmandates.render("Überhangmandate",
 				DataCache.getExcessMandates(use_cache())));
 	}
+    
 
 	/**
 	 * Members of the bundestag
@@ -182,10 +185,7 @@ public class Application extends Controller {
 	private static void initializeDataManager() {
 		if (Application.dataManager == null) {
 			// Create the database connection
-			Configuration conf = play.Play.application().configuration();
-			DBConnect db = new DBConnect(conf.getString("wisdb.connectstring"),
-					conf.getString("wisdb.username"),
-					conf.getString("wisdb.password"));
+			DBConnect db = new DBConnect();
 
 			// Interrupt the current data manager, if one exists
 			if (Application.dataManager != null)

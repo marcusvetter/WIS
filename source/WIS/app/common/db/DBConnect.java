@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import play.db.*;
+
 import model.Party;
 import model.BundestagMember;
 import model.ConstituencyWinner;
@@ -24,17 +26,8 @@ import common.IDataProvider;
 public class DBConnect implements IDataProvider {
 	private Connection con;
 
-	public DBConnect(String connectstring, String username, String password) {
-		try {
-			Class.forName("org.postgresql.Driver");
-			con = DriverManager
-					.getConnection(connectstring, username, password);
-		} catch (ClassNotFoundException e1) {
-			throw new DatabaseException("driver not found");
-		} catch (SQLException e2) {
-			e2.printStackTrace();
-			throw new DatabaseException("Connection failed");
-		}
+	public DBConnect() {
+        con = DB.getConnection();
 	}
 
 	public ResultSet executeStatement(String stmt) throws SQLException {
@@ -222,7 +215,8 @@ public class DBConnect implements IDataProvider {
     public List<PartyVote> getPartySecondVotes(int constituency) {
         String stmt;
         if (213 > constituency || constituency > 217) {
-            stmt = "select * from wahlkreise_parteistimmen_beidejahre where wahlkreis = "+constituency+" order by partei";
+            //stmt = "select * from wahlkreise_parteistimmen_beidejahre where wahlkreis = "+constituency+" order by partei";
+            stmt = "select * from wahlkreise_parteistimmen_beidejahre("+constituency+") order by partei";
         } else {
             stmt = "select * from wahlkreise_parteistimmen_beidejahre_einzelstimmen where wahlkreis = "+constituency+" order by partei";
         }
@@ -242,7 +236,8 @@ public class DBConnect implements IDataProvider {
     public List<PartyVote> getPartyFirstVotes(int constituency) {
         String stmt;
         if (213 > constituency || constituency > 217) {
-            stmt = "select * from wahlkreise_erststimmen_beidejahre where wahlkreis = "+constituency+" order by partei";
+            //stmt = "select * from wahlkreise_erststimmen_beidejahre where wahlkreis = "+constituency+" order by partei";
+            stmt = "select * from wahlkreise_erststimmen_beidejahre("+constituency+") order by partei";
         } else {
             stmt = "select * from wahlkreise_erststimmen_beidejahre_einzelstimmen where wahlkreis = "+constituency+" order by partei";
         }
