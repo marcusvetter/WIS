@@ -186,6 +186,8 @@ public class Application extends Controller {
 	 */
 	public static Result ballotCode() {
 		initializeDataManager();
+        if (session("codecount") != null && Integer.parseInt(session("codecount")) > 3)
+            return badRequest("Zu viele Fehlversuche");
         return ok(ballotcode.render("Stimmzettel - Code eingeben"));
 	}
 
@@ -194,11 +196,19 @@ public class Application extends Controller {
 	 */
 	public static Result constituencyBallot() {
 		initializeDataManager();
+        if (session("codecount") != null && Integer.parseInt(session("codecount")) > 3)
+            return badRequest("Zu viele Fehlversuche");
         final Map<String, String[]> values = request().body().asFormUrlEncoded();
         String ballotcode  = values.get("ballotcode")[0];
         int constituency = db.checkBallotCode(ballotcode);
-        if (constituency < 1)
+        if (constituency < 1) {
+            if (session("codecount") == null) {
+                session("codecount", "1");
+            } else {
+                session("codecount", (Integer.parseInt(session("codecount"))+1)+"");
+            }
             return badRequest("Code ist ungültig");
+        }
 		List<BallotEntry> ballot = DataCache.getBallot(constituency, use_cache());
         return ok(constituencyballot.render("Stimmzettel", ballot, ballotcode));
 	}
