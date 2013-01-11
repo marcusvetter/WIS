@@ -6,38 +6,39 @@
 		<img id="img-header" src='@routes.Assets.at("images/ballot_header.png")' />
 		<form action="" method="POST">
 			<table id="ballot-table">
-				<tr id="header1">
-					<th colspan="3" id="header1-l">Erststimme</th>
-					<th colspan="4" id="header1-r">Zweitstimme</th>
-				</tr>
-				<tr id="header2">
-					<th class="col-ll"></th>
-					<th>Name</th>
-					<th class="col-lr">Partei</th>
-					<th class="col-rl"></th>
-					<th colspan="2">Partei</th>
-					<th class="col-rr">Listenkandidaten</th>
+				<tr>
+					<th id="header-left" colspan="3">Erststimme</th>
+					<td></td>
+					<th id="header-right" colspan="3">Zweitstimme</th>
 				</tr>
 				@for(ballotEntry <- ballotEntries) {
 				<tr>
-					<td class="col-ll"><input type="radio" name="candidate" value="@ballotEntry.getCandidateId()"></td>
-					<td>@ballotEntry.getCandidateName()</td>
-					<td class="col-lr">@ballotEntry.getCandidateParty()</td>
-					<td class="col-rl"><input type="radio" name="party" value="@ballotEntry.getPartyId()"></td>
-					<td>@ballotEntry.getPartyShortName()</td>
-					<td>@ballotEntry.getPartyFullName()</td>
-					<td class="col-rr">@ballotEntry.getListCandidateNames()</td>
+
+					<td class="left"><b>@ballotEntry.getCandidateName()</b></td>
+					<td class="blackbottomborder" id="italic">@ballotEntry.getCandidateParty()</td>
+					<td class="blackbottomborder">
+						@if(ballotEntry.getCandidateId() >= 0) {
+							<input type="radio" name="candidate" value="@ballotEntry.getCandidateId()">
+						}
+					</td>
+					<td class="seperator"></td>
+					<td class="bluebottomborder">
+						@if(ballotEntry.getPartyId() >= 0) {
+							<input type="radio" name="party" value="@ballotEntry.getPartyId()"></td>
+						}
+					<td class="bluecol"><b>@ballotEntry.getPartyShortName()</b></td>
+					<td id="italic" class="right">@ballotEntry.getListCandidateNames()</td>
 				</tr>
 				}
 				<tr>
-					<td class="col-ll"><input type="radio" name="candidate" value="-1" checked></td>
-					<td colspan="2" class="col-lr">Keinen Direktkandidaten wählen</td>
-					<td class="col-rl"><input type="radio" name="party" value="-1" checked></td>
-					<td colspan="3" class="col-rr">Keine Partei wählen</td>
+					<td id="no-candidate" class="left" colspan="2"><b>Keinen Kandidaten wählen</b></td>
+					<td id="no-candidate" class="blackbottomborder"><input type="radio" name="candidate" value="-1" checked></td>
+					<td class="seperator"></td>
+					<td id="no-party" class="bluebottomborder"><input type="radio" name="party" value="-1" checked></td>
+					<td id="no-party" class="right"  colspan="2"><b>Keine Partei wählen</b></td>
 				</tr>
 			</table>
-			<br><br>
-			<input type="submit" value="Absenden">
+			<input type="submit" value="Absenden" class="submitbutton">
 		</form>
 	</div>
 </center>

@@ -7,7 +7,6 @@ public class BallotEntry {
 	private String candidateParty;
 	private int partyId;
 	private String partyShortName;
-	private String partyFullName;
 	private String listCandidateNames;
 	
 	/**
@@ -15,18 +14,15 @@ public class BallotEntry {
 	 * @param candidateName
 	 * @param partyId
 	 * @param partyShortName
-	 * @param partyFullName
 	 * @param listCandidateNames
 	 */
 	public BallotEntry(int candidateId, String candidateName, String candidateParty, int partyId,
-			String partyShortName, String partyFullName,
-			String listCandidateNames) {
+			String partyShortName, String listCandidateNames) {
 		this.candidateId = candidateId;
 		this.candidateName = candidateName;
         this.candidateParty = candidateParty;
 		this.partyId = partyId;
 		this.partyShortName = partyShortName;
-		this.partyFullName = partyFullName;
 		this.listCandidateNames = listCandidateNames;
 	}
 	/**
@@ -62,13 +58,6 @@ public class BallotEntry {
 	 */
 	public String getPartyShortName() {
 		return partyShortName;
-	}
-
-	/**
-	 * @return the partyFullName
-	 */
-	public String getPartyFullName() {
-		return partyFullName;
 	}
 
 	/**
