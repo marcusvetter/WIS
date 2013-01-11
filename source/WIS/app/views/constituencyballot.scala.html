@@ -1,0 +1,36 @@
+@(title: String, ballotEntries: List[model.BallotEntry])
+
+@main(title){
+<center>
+	<div>
+		<img width="800px" src='@routes.Assets.at("images/ballot_header.png")' />
+		<form action="" method="POST">
+			<table>
+				@for(ballotEntry <- ballotEntries) {
+				<tr>
+					<th colspan="2">Erststimme</th>
+					<th colspan="5">Zweitstimme</th>
+				</tr>
+				<tr>
+					<th></th>
+					<th>Name</th>
+					<th>Partei</th>
+					<th></th>
+					<th colspan="2">Partei</th>
+					<th>Listenkandidaten</th>
+				</tr>
+				<tr>
+					<td><input type="radio" name="candidate" value="@ballotEntry.getCandidateId()"></td>
+					<td>@ballotEntry.getCandidateName()</td>
+					<td>@ballotEntry.getCandidateParty()</td>
+					<td><input type="radio" name="party" value="@ballotEntry.getPartyId()"></td>
+					<td>@ballotEntry.getPartyShortName()</td>
+					<td>@ballotEntry.getPartyFullName()</td>
+					<td>@ballotEntry.getListCandidateNames()</td>
+				</tr>
+				}
+			</table>
+		</form>
+	</div>
+</center>
+}

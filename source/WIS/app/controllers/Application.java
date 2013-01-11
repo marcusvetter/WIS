@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.Map;
 
+import model.BallotEntry;
 import model.DataCache;
 import model.VoteAggregate;
 import model.Party;
@@ -25,6 +26,7 @@ import views.html.seatdistribution;
 import views.html.excessmandates;
 import views.html.constituencyoverview;
 import views.html.constituencyoverview_json;
+import views.html.constituencyballot;
 
 import common.DataManagerThread;
 import common.db.DBConnect;
@@ -177,6 +179,20 @@ public class Application extends Controller {
 		initializeDataManager();
 		return ok(bundestagmembers.render("Bundestagsmitglieder",
 				DataCache.getBundestagMembers(use_cache())));
+	}
+	
+	/**
+	 * Constituency ballot
+	 */
+	public static Result constituencyBallot() {
+		List<BallotEntry> ballot = new ArrayList<BallotEntry>();
+		ballot.add(new BallotEntry(1, "Hans Peter", 1, "SPD", "Sozialdemokratische Partei Deutschlands" , "Hannah Peter, Hans Wurst, Maria Sonstwie, Peter Hans, Wurst Peter"));
+		ballot.add(new BallotEntry(2, "Hans Peter", 2, "SPD", "Sozialdemokratische Partei Deutschlands" , "Hannah Peter, Hans Wurst, Maria Sonstwie, Peter Hans, Wurst Peter"));
+		ballot.add(new BallotEntry(3, "Hans Peter", 3, "SPD", "Sozialdemokratische Partei Deutschlands" , "Hannah Peter, Hans Wurst, Maria Sonstwie, Peter Hans, Wurst Peter"));
+		ballot.add(new BallotEntry(0, "", 4, "SPD", "Sozialdemokratische Partei Deutschlands" , "Hannah Peter, Hans Wurst, Maria Sonstwie, Peter Hans, Wurst Peter"));
+		ballot.add(new BallotEntry(4, "Hans Peter", 0, "", "" , ""));
+		ballot.add(new BallotEntry(5, "Hans Peter", 5, "SPD", "Sozialdemokratische Partei Deutschlands" , "Hannah Peter, Hans Wurst, Maria Sonstwie, Peter Hans, Wurst Peter"));
+        return ok(constituencyballot.render("Stimmzettel", ballot));
 	}
 
 	/**
