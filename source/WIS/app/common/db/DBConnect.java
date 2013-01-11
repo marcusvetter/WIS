@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -266,5 +267,83 @@ public class DBConnect implements IDataProvider {
 			throw new DatabaseException("SELECT failed");
 		}
 		return ballot; 
+    }
+
+    public int checkBallotCode(String ballotcode) {
+        try {
+        PreparedStatement stmt = con.prepareStatement("SELECT wahlkreis FROM wis_wahlzettel WHERE code = ? and abgestimmtam is null");
+        stmt.setString(1, ballotcode);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("wahlkreis");
+        } else {
+            return -1;
+        }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    public boolean checkBallot(int constituency, int candidateid, int partyid) {
+        try {
+        PreparedStatement stmtfirst = con.prepareStatement("select * from wis_kandidatur k where id = ? and wahlkreis = ? and wahl = 2");
+        PreparedStatement stmtsecond = con.prepareStatement("select *from wis_landesliste ll, wis_wahlkreis wk where ll.id = ? and ll.wahl = 2 and wk.id = ? AND wk.bundesland = ll.bundesland");
+        stmtfirst.setInt(1, candidateid);
+        stmtfirst.setInt(2, constituency);
+        stmtsecond.setInt(1, partyid);
+        stmtsecond.setInt(2, constituency);
+        ResultSet rsfirst = stmtfirst.executeQuery();
+        ResultSet rssecond = stmtsecond.executeQuery();
+        if (candidateid < 1 && partyid < 1)
+            return true;
+        else if (candidateid > 0 && partyid > 0)
+            return rsfirst.next() && rssecond.next();
+        else if (candidateid > 0)
+            return rsfirst.next();
+        else if (partyid > 0)
+            return rssecond.next();
+        else
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean insertBallot(String ballotcode, int candidateid, int partyid) {
+        int constituency = checkBallotCode(ballotcode);
+        if (constituency < 1 || !checkBallot(constituency, candidateid, partyid)) {
+            //System.out.println("Constituency: "+constituency + ", Ballot nicht in Ordnung");
+            return false;
+        } else {
+            try {
+            con.setAutoCommit(false);
+            if (candidateid > 0) {
+                PreparedStatement stmt = con.prepareStatement("INSERT INTO wis_erststimme(fuerkandidat, abgegebenin) VALUES (?, ?)");
+                stmt.setInt(1, candidateid);
+                stmt.setInt(2, constituency);
+                stmt.executeUpdate();
+            }
+            if (partyid > 0) {
+                PreparedStatement stmt = con.prepareStatement("INSERT INTO wis_zweitstimme(fuerliste, abgegebenin) VALUES (?, ?)");
+                stmt.setInt(1, partyid);
+                stmt.setInt(2, constituency);
+                stmt.executeUpdate();
+            }
+            PreparedStatement stmt = con.prepareStatement("update wis_wahlzettel set abgestimmtam = ('now'::text)::timestamp without time zone where code = ?");
+            stmt.setString(1, ballotcode);
+            stmt.executeUpdate();
+            con.commit();
+            return true;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                try {
+                    con.rollback();
+                    con.setAutoCommit(true);
+                } catch (SQLException e2) {}
+                return false;
+            }
+        }
     }
 }

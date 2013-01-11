@@ -21,6 +21,7 @@ import views.html.narrowwinners;
 import views.html.narrowwinners_json;
 import views.html.overview;
 import views.html.seatdistribution;
+import views.html.ballotcode;
 
 import common.DataManagerThread;
 import common.db.DBConnect;
@@ -38,6 +39,11 @@ public class Application extends Controller {
 	 * The thread for managing data
 	 */
 	private static DataManagerThread dataManager = null;
+    
+	/**
+	 * Connection to the database 
+	 */
+    private static DBConnect db = null;
     
     /**
      * Read GET-parameter "cache" to determine if cache should be used
@@ -176,13 +182,52 @@ public class Application extends Controller {
 	}
 	
 	/**
+	 * Enter ballot code
+	 */
+	public static Result ballotCode() {
+		initializeDataManager();
+        return ok(ballotcode.render("Stimmzettel - Code eingeben"));
+	}
+
+	/**
 	 * Constituency ballot
 	 */
 	public static Result constituencyBallot() {
 		initializeDataManager();
-		List<BallotEntry> ballot = DataCache.getBallot(1, use_cache());
+        final Map<String, String[]> values = request().body().asFormUrlEncoded();
+        String ballotcode  = values.get("ballotcode")[0];
+        int constituency = db.checkBallotCode(ballotcode);
+        if (constituency < 1)
+            return badRequest("Code ist ungültig");
+		List<BallotEntry> ballot = DataCache.getBallot(constituency, use_cache());
         return ok(constituencyballot.render("Stimmzettel", ballot));
 	}
+
+	/**
+	 * process ballot
+	 */
+    public static Result processBallot() {
+        initializeDataManager();
+        final Map<String, String[]> values = request().body().asFormUrlEncoded();
+        int candidateid, partyid;
+        String ballotcode;
+        try {
+            String candidate = values.get("candidate")[0];
+            String party = values.get("party")[0];
+            ballotcode  = values.get("ballotcode")[0];
+            candidateid = Integer.parseInt(candidate);
+            partyid = Integer.parseInt(party);
+            if (db.insertBallot(ballotcode, candidateid, partyid)) {
+                return ok("Sie haben abgestimmt");
+            } else {
+                System.out.println("insertBallot fehlgeschalgen");
+                return badRequest("Fehler bei der Abgabe");
+            } 
+        } catch (Exception e) {
+            e.printStackTrace();
+            return badRequest("Fehler bei der Abgabe");
+        }
+    }
 
 	/**
 	 * Initialize the data manager thread
@@ -190,7 +235,7 @@ public class Application extends Controller {
 	private static void initializeDataManager() {
 		if (Application.dataManager == null) {
 			// Create the database connection
-			DBConnect db = new DBConnect();
+			db = new DBConnect();
 
 			// Interrupt the current data manager, if one exists
 			if (Application.dataManager != null)
