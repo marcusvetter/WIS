@@ -83,3 +83,43 @@ div#content {
 div#footer {
 	text-align: right;
 }
+
+#img-header {
+	width: 800px;
+	left: 0px;
+	margin-bottom: 50px;
+}
+
+/*#ballot-table td {
+	border: solid thin;
+}*/
+
+.col-ll {
+	border-left: #000000 solid thin;
+}
+
+.col-lr {
+	border-right: #000000 solid thin;
+}
+
+.col-rl {
+	border-left: #009ee0 solid thin;
+}
+
+.col-rr {
+	border-right: #009ee0 solid thin;
+}
+
+#header1-l {
+	width: 50%;
+	border-left: #000000 solid thin;
+	border-top: #000000 solid thin;
+	border-right: #000000 solid thin;
+}
+
+#header1-r {
+	width: 50%;
+	border-left: #009ee0 solid thin;
+	border-top: #009ee0 solid thin;
+	border-right: #009ee0 solid thin;
+}

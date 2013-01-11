@@ -3,33 +3,41 @@
 @main(title){
 <center>
 	<div>
-		<img width="800px" src='@routes.Assets.at("images/ballot_header.png")' />
+		<img id="img-header" src='@routes.Assets.at("images/ballot_header.png")' />
 		<form action="" method="POST">
-			<table>
+			<table id="ballot-table">
+				<tr id="header1">
+					<th colspan="3" id="header1-l">Erststimme</th>
+					<th colspan="4" id="header1-r">Zweitstimme</th>
+				</tr>
+				<tr id="header2">
+					<th class="col-ll"></th>
+					<th>Name</th>
+					<th class="col-lr">Partei</th>
+					<th class="col-rl"></th>
+					<th colspan="2">Partei</th>
+					<th class="col-rr">Listenkandidaten</th>
+				</tr>
 				@for(ballotEntry <- ballotEntries) {
 				<tr>
-					<th colspan="2">Erststimme</th>
-					<th colspan="5">Zweitstimme</th>
-				</tr>
-				<tr>
-					<th></th>
-					<th>Name</th>
-					<th>Partei</th>
-					<th></th>
-					<th colspan="2">Partei</th>
-					<th>Listenkandidaten</th>
-				</tr>
-				<tr>
-					<td><input type="radio" name="candidate" value="@ballotEntry.getCandidateId()"></td>
+					<td class="col-ll"><input type="radio" name="candidate" value="@ballotEntry.getCandidateId()"></td>
 					<td>@ballotEntry.getCandidateName()</td>
-					<td>@ballotEntry.getCandidateParty()</td>
-					<td><input type="radio" name="party" value="@ballotEntry.getPartyId()"></td>
+					<td class="col-lr">@ballotEntry.getCandidateParty()</td>
+					<td class="col-rl"><input type="radio" name="party" value="@ballotEntry.getPartyId()"></td>
 					<td>@ballotEntry.getPartyShortName()</td>
 					<td>@ballotEntry.getPartyFullName()</td>
-					<td>@ballotEntry.getListCandidateNames()</td>
+					<td class="col-rr">@ballotEntry.getListCandidateNames()</td>
 				</tr>
 				}
+				<tr>
+					<td class="col-ll"><input type="radio" name="candidate" value="-1" checked></td>
+					<td colspan="2" class="col-lr">Keinen Direktkandidaten wählen</td>
+					<td class="col-rl"><input type="radio" name="party" value="-1" checked></td>
+					<td colspan="3" class="col-rr">Keine Partei wählen</td>
+				</tr>
 			</table>
+			<br><br>
+			<input type="submit" value="Absenden">
 		</form>
 	</div>
 </center>
