@@ -169,10 +169,10 @@ create or replace view mandate (bundesland, partei, kandidat, wahlkreis, listenp
 );
 
 create or replace view sitzverteilung as (
-	select m.partei, p.name, count(*) as sitze
+	select m.partei, p.name, count(*) as sitze, p.displaycolor
 	from mandate m, wis_partei p
 	where p.id = m.partei
-	group by m.partei, p.name
+	group by m.partei, p.name, p.displaycolor
 );
 
 create or replace view gewaehlte_bewerber (bundesland, partei, vorname, nachname, wahlkreis, listenplatz) as (

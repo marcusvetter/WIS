@@ -17,7 +17,7 @@ GET     /knappegewinner/gewinner/:party         controllers.Application.narrowwi
 GET     /knappegewinner/verlierer/:party        controllers.Application.narrowlosers_json(party: Int)
 GET     /knappegewinner                         controllers.Application.narrowwinners()
 GET		/stimmzettelcode						controllers.Application.ballotCode()
-POST	/stimmzettelcode						controllers.Application.constituencyBallot()
+POST 	/stimmzettelcode						controllers.Application.constituencyBallot()
 POST	/stimmzettel							controllers.Application.processBallot()
 
 # Map static resources from the /public folder to the /assets URL path

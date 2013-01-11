@@ -21,6 +21,7 @@ import views.html.narrowwinners;
 import views.html.narrowwinners_json;
 import views.html.overview;
 import views.html.seatdistribution;
+import views.html.ballotcode;
 
 import common.DataManagerThread;
 import common.db.DBConnect;
@@ -185,8 +186,7 @@ public class Application extends Controller {
 	 */
 	public static Result ballotCode() {
 		initializeDataManager();
-        return badRequest("not yet implemented");
-        //return ok(constituencyballot.render("Stimmzettel - Code eingeben"));
+        return ok(ballotcode.render("Stimmzettel - Code eingeben"));
 	}
 
 	/**
@@ -194,14 +194,11 @@ public class Application extends Controller {
 	 */
 	public static Result constituencyBallot() {
 		initializeDataManager();
-        /*
         final Map<String, String[]> values = request().body().asFormUrlEncoded();
         String ballotcode  = values.get("ballotcode")[0];
         int constituency = db.checkBallotCode(ballotcode);
         if (constituency < 1)
             return badRequest("Code ist ungültig");
-        */
-        int constituency = 1;
 		List<BallotEntry> ballot = DataCache.getBallot(constituency, use_cache());
         return ok(constituencyballot.render("Stimmzettel", ballot));
 	}
@@ -217,15 +214,17 @@ public class Application extends Controller {
         try {
             String candidate = values.get("candidate")[0];
             String party = values.get("party")[0];
-            ballotcode  = "1234";//values.get("ballotcode")[0];
+            ballotcode  = values.get("ballotcode")[0];
             candidateid = Integer.parseInt(candidate);
             partyid = Integer.parseInt(party);
             if (db.insertBallot(ballotcode, candidateid, partyid)) {
                 return ok("Sie haben abgestimmt");
             } else {
+                System.out.println("insertBallot fehlgeschalgen");
                 return badRequest("Fehler bei der Abgabe");
             } 
         } catch (Exception e) {
+            e.printStackTrace();
             return badRequest("Fehler bei der Abgabe");
         }
     }
