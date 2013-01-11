@@ -1,32 +1,26 @@
 package controllers;
 
 import java.util.List;
-import java.util.ArrayList;
-import java.util.concurrent.Semaphore;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
 
 import model.BallotEntry;
-import model.DataCache;
-import model.VoteAggregate;
-import model.Party;
 import model.Constituency;
-import model.ConstituencyInfo;
-import model.NarrowWinner;
-import model.ExcessMandate;
-import play.Configuration;
+import model.DataCache;
+import model.Party;
+import model.VoteAggregate;
 import play.mvc.Controller;
 import play.mvc.Result;
-import play.mvc.Http;
 import views.html.bundestagmembers;
+import views.html.constituencyballot;
+import views.html.constituencyoverview;
+import views.html.constituencyoverview_json;
 import views.html.constituencywinners;
+import views.html.excessmandates;
 import views.html.narrowwinners;
 import views.html.narrowwinners_json;
 import views.html.overview;
 import views.html.seatdistribution;
-import views.html.excessmandates;
-import views.html.constituencyoverview;
-import views.html.constituencyoverview_json;
-import views.html.constituencyballot;
 
 import common.DataManagerThread;
 import common.db.DBConnect;

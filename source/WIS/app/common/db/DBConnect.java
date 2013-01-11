@@ -1,7 +1,6 @@
 package common.db;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -9,19 +8,18 @@ import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
-import play.db.*;
-
-import model.Party;
+import model.BallotEntry;
 import model.BundestagMember;
-import model.ConstituencyWinner;
+import model.Constituency;
 import model.ConstituencyInfo;
-import model.NarrowWinner;
+import model.ConstituencyWinner;
 import model.ExcessMandate;
+import model.NarrowWinner;
+import model.Party;
+import model.PartyVote;
 import model.SeatAggregate;
 import model.VoteAggregate;
-import model.Constituency;
-import model.PartyVote;
-import model.BallotEntry;
+import play.db.DB;
 
 import common.IDataProvider;
 
@@ -262,7 +260,7 @@ public class DBConnect implements IDataProvider {
 		try {
 			ResultSet rs = executeStatement("SELECT * FROM func_wahlkreis_stimmzettel("+constituency+")");
 			while (rs.next()) {
-				ballot.add(new BallotEntry(rs.getInt("kandidatid"), rs.getString("kandidatname"), rs.getString("kandidatpartei"), rs.getInt("parteiid"), rs.getString("parteikurzname"), rs.getString("parteilangname"), rs.getString("listenkandidaten")));
+				ballot.add(new BallotEntry(rs.getInt("kandidatid"), rs.getString("kandidatname"), rs.getString("kandidatpartei"), rs.getInt("parteiid"), rs.getString("parteikurzname"), rs.getString("listenkandidaten")));
 			}
 			rs.close();
 		} catch (SQLException e) {
