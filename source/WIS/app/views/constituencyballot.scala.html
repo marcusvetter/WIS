@@ -1,6 +1,36 @@
-@(title: String, ballotEntries: List[model.BallotEntry])
+@(title: String, ballotEntries: List[model.BallotEntry], ballotcode: String)
 
-@main(title){
+@scripts = {
+	<script>
+		$(function() {
+			// Change color on radio button click (left column)
+			$('input[name=candidate]:radio').change(function () {
+				if($(this).is(":checked")) {
+					$('input[name=candidate]:radio').each(function () {
+						$(this).closest('td').css('background-color', '#FFFFFF');
+						$(this).closest('td').prevAll().css('background-color', '#FFFFFF');
+					})
+					$(this).closest('td').css('background-color', '#E3E3E3');
+					$(this).closest('td').prevAll().css('background-color', '#E3E3E3');
+				}
+			});
+			
+			// Change color on radio button click (right column)
+			$('input[name=party]:radio').change(function () {
+				if($(this).is(":checked")) {
+					$('input[name=party]:radio').each(function () {
+						$(this).closest('td').css('background-color', '#FFFFFF');
+						$(this).closest('td').nextAll().css('background-color', '#FFFFFF');
+					})
+					$(this).closest('td').css('background-color', '#c6ebfb');
+					$(this).closest('td').nextAll().css('background-color', '#c6ebfb');
+				}
+			});
+		});
+	</script>
+}
+
+@main(title, scripts){
 <center>
 	<div>
 		<img id="img-header" src='@routes.Assets.at("images/ballot_header.png")' />
@@ -38,6 +68,7 @@
 					<td id="no-party" class="right"  colspan="2"><b>Keine Partei wählen</b></td>
 				</tr>
 			</table>
+			<input type="hidden" value="@ballotcode" name="ballotcode">
 			<input type="submit" value="Absenden" class="submitbutton">
 		</form>
 	</div>
