@@ -200,7 +200,7 @@ public class Application extends Controller {
         if (constituency < 1)
             return badRequest("Code ist ungültig");
 		List<BallotEntry> ballot = DataCache.getBallot(constituency, use_cache());
-        return ok(constituencyballot.render("Stimmzettel", ballot));
+        return ok(constituencyballot.render("Stimmzettel", ballot, ballotcode));
 	}
 
 	/**
