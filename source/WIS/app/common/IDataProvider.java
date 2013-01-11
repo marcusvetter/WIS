@@ -12,6 +12,8 @@ import model.SeatAggregate;
 import model.VoteAggregate;
 import model.Constituency;
 import model.PartyVote;
+import model.BallotEntry;
+
 
 public interface IDataProvider {
 
@@ -101,4 +103,12 @@ public interface IDataProvider {
      */
     ConstituencyInfo getConstituencyInfo(int constituency);
 
+    /**
+     * Get a ballot for a constituency
+     * 
+     * @param constituency ID of constituency
+     *
+     * @return list of BallotEntrys
+     */
+    List<BallotEntry> getBallot(int constituency);
 }

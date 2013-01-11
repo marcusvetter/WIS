@@ -20,6 +20,7 @@ import model.SeatAggregate;
 import model.VoteAggregate;
 import model.Constituency;
 import model.PartyVote;
+import model.BallotEntry;
 
 import common.IDataProvider;
 
@@ -249,8 +250,23 @@ public class DBConnect implements IDataProvider {
 			}
 			rs.close();
 		} catch (SQLException e) {
+            e.printStackTrace();
 			throw new DatabaseException("SELECT failed");
 		}
 		return votes;
+    }
+    
+    public List<BallotEntry> getBallot(int constituency) {
+        List<BallotEntry> ballot = new ArrayList<BallotEntry>();
+		try {
+			ResultSet rs = executeStatement("SELECT * FROM func_wahlkreis_stimmzettel("+constituency+")");
+			while (rs.next()) {
+				ballot.add(new BallotEntry(rs.getInt("kandidatid"), rs.getString("kandidatname"), rs.getString("kandidatpartei"), rs.getInt("parteiid"), rs.getString("parteikurzname"), rs.getString("parteilangname"), rs.getString("listenkandidaten")));
+			}
+			rs.close();
+		} catch (SQLException e) {
+			throw new DatabaseException("SELECT failed");
+		}
+		return ballot; 
     }
 }

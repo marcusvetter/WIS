@@ -185,13 +185,8 @@ public class Application extends Controller {
 	 * Constituency ballot
 	 */
 	public static Result constituencyBallot() {
-		List<BallotEntry> ballot = new ArrayList<BallotEntry>();
-		ballot.add(new BallotEntry(1, "Hans Peter", 1, "SPD", "Sozialdemokratische Partei Deutschlands" , "Hannah Peter, Hans Wurst, Maria Sonstwie, Peter Hans, Wurst Peter"));
-		ballot.add(new BallotEntry(2, "Hans Peter", 2, "SPD", "Sozialdemokratische Partei Deutschlands" , "Hannah Peter, Hans Wurst, Maria Sonstwie, Peter Hans, Wurst Peter"));
-		ballot.add(new BallotEntry(3, "Hans Peter", 3, "SPD", "Sozialdemokratische Partei Deutschlands" , "Hannah Peter, Hans Wurst, Maria Sonstwie, Peter Hans, Wurst Peter"));
-		ballot.add(new BallotEntry(0, "", 4, "SPD", "Sozialdemokratische Partei Deutschlands" , "Hannah Peter, Hans Wurst, Maria Sonstwie, Peter Hans, Wurst Peter"));
-		ballot.add(new BallotEntry(4, "Hans Peter", 0, "", "" , ""));
-		ballot.add(new BallotEntry(5, "Hans Peter", 5, "SPD", "Sozialdemokratische Partei Deutschlands" , "Hannah Peter, Hans Wurst, Maria Sonstwie, Peter Hans, Wurst Peter"));
+		initializeDataManager();
+		List<BallotEntry> ballot = DataCache.getBallot(1, use_cache());
         return ok(constituencyballot.render("Stimmzettel", ballot));
 	}
 

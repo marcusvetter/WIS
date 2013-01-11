@@ -67,6 +67,12 @@ public class DataCache {
     private static HashMap<Integer, ConstituencyInfo> constituencyinfo = new HashMap<Integer, ConstituencyInfo>();
 
     
+    /**
+     * Cached ballots 
+     */
+    private static HashMap<Integer, List<BallotEntry>> ballots = new HashMap<Integer, List<BallotEntry>>();
+    
+    
     public static void setDataProvider(IDataProvider dp) {
         dataprovider = dp;
     }
@@ -338,5 +344,34 @@ public class DataCache {
     public static void setConstituencyInfo(int constituency, ConstituencyInfo info) {
         DataCache.constituencyinfo.put(constituency, info);
     }
+    
+    
+	/**
+	 * Get ballot for a constituency 
+	 * 
+     * @param constituency ID of constituency
+     *
+	 * @return list of BallotEntrys
+	 */
+    public static List<BallotEntry> getBallot(int constituency, boolean cache) {
+        if (!(cache && USE_CACHE) || DataCache.ballots.get(constituency) == null) {
+            List<BallotEntry> l = DataCache.dataprovider.getBallot(constituency);
+            DataCache.ballots.put(constituency, l);
+            return l;
+        } else {
+            return DataCache.ballots.get(constituency);
+        }
+    }
+    /**
+	 * Set ballot for a constituency
+	 * 
+	 * @param constituency ID of constituency
+	 * @param ballot Ballot
+	 */
+    public static void setBallot(int constituency, List<BallotEntry> ballot) {
+        DataCache.ballots.put(constituency, ballot);
+    }
+    
+	
 
 }

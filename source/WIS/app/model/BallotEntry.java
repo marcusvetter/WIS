@@ -18,11 +18,12 @@ public class BallotEntry {
 	 * @param partyFullName
 	 * @param listCandidateNames
 	 */
-	public BallotEntry(int candidateId, String candidateName, int partyId,
+	public BallotEntry(int candidateId, String candidateName, String candidateParty, int partyId,
 			String partyShortName, String partyFullName,
 			String listCandidateNames) {
 		this.candidateId = candidateId;
 		this.candidateName = candidateName;
+        this.candidateParty = candidateParty;
 		this.partyId = partyId;
 		this.partyShortName = partyShortName;
 		this.partyFullName = partyFullName;
