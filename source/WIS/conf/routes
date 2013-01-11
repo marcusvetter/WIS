@@ -6,7 +6,8 @@
 GET     /                                      controllers.Application.index()
 
 # Sitzverteilung          
-GET     /ueberblick                             controllers.Application.overview(sicht: String ?= "deutschland")
+GET     /ueberblick                             controllers.Application.index()
+GET		/ueberblick/deutschland					controllers.Application.overview()
 GET     /ueberblick/wahlkreise                  controllers.Application.constituencyoverview()
 GET     /ueberblick/wahlkreise/:constituency    controllers.Application.constituencyoverview_json(constituency: Int)
 GET     /sitzverteilung                         controllers.Application.seatdistribution()
