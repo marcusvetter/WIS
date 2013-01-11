@@ -22,6 +22,7 @@ import views.html.narrowwinners_json;
 import views.html.overview;
 import views.html.seatdistribution;
 import views.html.ballotcode;
+import views.html.message;
 
 import common.DataManagerThread;
 import common.db.DBConnect;
@@ -198,7 +199,7 @@ public class Application extends Controller {
         String ballotcode  = values.get("ballotcode")[0];
         int constituency = db.checkBallotCode(ballotcode);
         if (constituency < 1)
-            return badRequest("Code ist ungültig");
+            return ok(message.render("Code ist ungültig! Bitte versuchen Sie es erneut."));
 		List<BallotEntry> ballot = DataCache.getBallot(constituency, use_cache());
         return ok(constituencyballot.render("Stimmzettel", ballot, ballotcode));
 	}
@@ -218,14 +219,14 @@ public class Application extends Controller {
             candidateid = Integer.parseInt(candidate);
             partyid = Integer.parseInt(party);
             if (db.insertBallot(ballotcode, candidateid, partyid)) {
-                return ok("Sie haben abgestimmt");
+                return ok(message.render("Sie haben erfolgreich abgestimmt!"));
             } else {
                 System.out.println("insertBallot fehlgeschalgen");
-                return badRequest("Fehler bei der Abgabe");
+                return ok(message.render("Fehler bei der Abgabe! Bitte kontaktieren Sie die Wahlhelfer."));
             } 
         } catch (Exception e) {
             e.printStackTrace();
-            return badRequest("Fehler bei der Abgabe");
+            return ok(message.render("Fehler bei der Abgabe!  Bitte kontaktieren Sie die Wahlhelfer."));
         }
     }
 
