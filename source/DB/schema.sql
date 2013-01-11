@@ -85,4 +85,10 @@ create table wis_zweitstimmenergebnis (
 	wahl integer references wis_bundestagswahl
 );
 
+CREATE TABLE wis_wahlzettel (
+  code varchar(512) unique not null,
+  wahlkreis integer not null references wis_wahlkreis(id),
+  generiertam timestamp without time zone NOT NULL DEFAULT ('now'::text)::timestamp without time zone,
+  abgestimmtam timestamp without time zone
+);
 

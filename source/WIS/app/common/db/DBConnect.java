@@ -335,6 +335,7 @@ public class DBConnect implements IDataProvider {
             stmt.setString(1, ballotcode);
             stmt.executeUpdate();
             con.commit();
+            con.setAutoCommit(true);
             return true;
             } catch (SQLException e) {
                 e.printStackTrace();

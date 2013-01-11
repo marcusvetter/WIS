@@ -731,3 +731,26 @@ CREATE OR REPLACE VIEW wahlkreise_erststimmen_beidejahre_einzelstimmen as (
 );
 
 
+-----------------------------------------------------------
+---------- Daten fuer Stimmzettel generieren --------------
+-----------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION func_wahlkreis_stimmzettel(IN integer)
+  RETURNS TABLE(kandidatid integer, kandidatname character varying, kandidatpartei character varying, parteiid integer, parteilangname character varying, parteikurzname character varying, listenkandidaten character varying) AS
+$BODY$ 
+	WITH v_erst AS (
+		select ktur.id, k.vorname, k.nachname, p.name parteiname, ktur.partei parteiid
+		from wis_kandidatur ktur, wis_kandidat k, wis_partei p
+		WHERE ktur.wahl = 2 AND ktur.wahlkreis = $1 AND k.id = ktur.kandidat AND ktur.partei = p.id
+	), v_zweit as (
+		select p.name, ll.id, p.id parteiid, (select string_agg(vorname || ' '||nachname, ', ') from (
+select * from wis_kandidatur ktur, wis_kandidat k where ktur.landesliste = ll.id and ktur.kandidat = k.id AND ktur.listenplatz <= 5 order by ktur.listenplatz) a) listenkandidaten
+
+		from wis_landesliste ll, wis_bundesland bl, wis_wahlkreis wk, wis_partei p
+		WHERE wk.id = $1 AND wk.bundesland = bl.id AND ll.bundesland = bl.id AND ll.wahl = 2 AND ll.partei = p.id
+	)
+	SELECT case when e.id is null then -1 else e.id end kandidatid, e.vorname || ' ' || e.nachname, e.parteiname, case when z.id is null then -1 else z.id end, z.name, z.name, z.listenkandidaten
+	FROM v_erst e FULL OUTER JOIN v_zweit z ON e.parteiid = z.parteiid
+$BODY$
+  LANGUAGE sql;
+
