@@ -754,3 +754,38 @@ select * from wis_kandidatur ktur, wis_kandidat k where ktur.landesliste = ll.id
 $BODY$
   LANGUAGE sql;
 
+---------------------------------------------------------------------
+----------- Invalidierte Aggregationen neu berechnen ----------------
+---------------------------------------------------------------------
+
+
+CREATE OR REPLACE FUNCTION update_aggregate() RETURNS void AS 
+$$
+DECLARE
+v_wahlkreis RECORD;
+BEGIN
+	FOR v_wahlkreis IN (SELECT distinct inwahlkreis FROM wis_zweitstimmenergebnis WHERE valid is false) LOOP
+		insert into wis_zweitstimmenergebnis 
+		select fuerliste, wahlkreis, anzahlstimmen , localtimestamp berechnetam, true "valid", 2 wahl
+		from (select zs.fuerliste, wb.wahlkreis, count(*) anzahlstimmen 
+		from wis_zweitstimme zs, wis_wahlbezirk wb 
+		WHERE zs.abgegebenin = wb.id AND wb.wahlkreis = v_wahlkreis.inwahlkreis
+		GROUP BY zs.fuerliste, wb.wahlkreis
+		) a;
+		DELETE FROM wis_zweitstimmenergebnis WHERE wahl = 2 and inwahlkreis = v_wahlkreis.inwahlkreis and valid = false;
+	END LOOP;
+	
+	FOR v_wahlkreis IN (SELECT distinct inwahlkreis FROM wis_erststimmenergebnis WHERE valid is false) LOOP
+		insert into wis_erststimmenergebnis 
+		select fuerkandidat, wahlkreis, anzahlstimmen, localtimestamp berechnetam, true "valid" , 2 wahl 
+		from (
+			select es.fuerkandidat, wb.wahlkreis, count(*) anzahlstimmen
+			from wis_erststimme es, wis_wahlbezirk wb 
+			WHERE es.abgegebenin = wb.id AND wb.wahlkreis = v_wahlkreis.inwahlkreis
+			GROUP BY es.fuerkandidat, wb.wahlkreis
+		) a;
+		DELETE FROM wis_erststimmenergebnis WHERE wahl = 2 and inwahlkreis = v_wahlkreis.inwahlkreis and valid = false;
+	END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+

@@ -324,12 +324,22 @@ public class DBConnect implements IDataProvider {
                 stmt.setInt(1, candidateid);
                 stmt.setInt(2, constituency);
                 stmt.executeUpdate();
+                stmt.close();
+                stmt = con.prepareStatement("UPDATE wis_erststimmenergebnis SET valid = false WHERE inwahlkreis = ? and wahl = 2");
+                stmt.setInt(1, constituency);
+                stmt.executeUpdate();
+                stmt.close();
             }
             if (partyid > 0) {
                 PreparedStatement stmt = con.prepareStatement("INSERT INTO wis_zweitstimme(fuerliste, abgegebenin) VALUES (?, ?)");
                 stmt.setInt(1, partyid);
                 stmt.setInt(2, constituency);
                 stmt.executeUpdate();
+                stmt.close();
+                stmt = con.prepareStatement("UPDATE wis_zweitstimmenergebnis SET valid = false WHERE inwahlkreis = ? and wahl = 2");
+                stmt.setInt(1, constituency);
+                stmt.executeUpdate();
+                stmt.close();
             }
             PreparedStatement stmt = con.prepareStatement("update wis_wahlzettel set abgestimmtam = ('now'::text)::timestamp without time zone where code = ?");
             stmt.setString(1, ballotcode);
