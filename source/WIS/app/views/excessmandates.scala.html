@@ -12,7 +12,7 @@
 		        data.addColumn('string', 'Anzahl der Überhangmandate');
 		        data.addRows([
 			        @for(mandate <- excessmandates) {
-						['@mandate.getState()', '@mandate.getParty()', '@mandate.getAmount()'] @if(mandate != excessmandates.last) {,}
+						['@Html(mandate.getState())', '@mandate.getParty()', '@mandate.getAmount()'] @if(mandate != excessmandates.last) {,}
 					}
 		        ]);
 		

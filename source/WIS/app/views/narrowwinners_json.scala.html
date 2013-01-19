@@ -9,7 +9,7 @@ cols: [
     ],
 rows: [
     @for(w <- winners) {
-        {c:[{v: @w.getConstituencyID() }, {v:'@w.getConstituency()'}, {v:'@w.getFirstname()'}, {v:'@w.getLastname()'}, {v: @w.getDifference() } ]} @if(w != winners.last) {,}
+        {c:[{v: @w.getConstituencyID() }, {v:'@Html(w.getConstituency())'}, {v:'@Html(w.getFirstname())'}, {v:'@Html(w.getLastname())'}, {v: @w.getDifference() } ]} @if(w != winners.last) {,}
     }
     ]
 }

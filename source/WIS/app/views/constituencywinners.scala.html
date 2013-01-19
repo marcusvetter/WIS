@@ -14,7 +14,7 @@
                     {id:'secondvotewinner', label:'Zweitstimmengewinner', type:'string'}],
                 rows: [
                 @for(district <- districts) {
-                {c:[{v:@district.getElectoralDistrictID()}, {v:'@district.getElectoralDistrict()'}, {v:'@district.getFirstVoteWinner()'}, {v:'@district.getSecondVoteWinner()'}]} @if(district != districts.last) {,}
+                {c:[{v:@district.getElectoralDistrictID()}, {v:'@Html(district.getElectoralDistrict())'}, {v:'@district.getFirstVoteWinner()'}, {v:'@district.getSecondVoteWinner()'}]} @if(district != districts.last) {,}
                 }
                 ] }, 0.6);
 	    

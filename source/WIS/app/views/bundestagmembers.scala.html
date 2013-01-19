@@ -15,7 +15,7 @@
 		        data.addColumn('string', 'Listenplatz');
 		        data.addRows([
 			        @for(member <- bundestagmembers) {
-						['@member.getState()', '@member.getParty()', '@member.getFirstname()', '@member.getSurname()', '@member.getConstituency()', '@member.getPlacement()'] @if(member != bundestagmembers.last) {,}
+						['@Html(member.getState())', '@member.getParty()', '@Html(member.getFirstname())', '@Html(member.getSurname())', '@member.getConstituency()', '@member.getPlacement()'] @if(member != bundestagmembers.last) {,}
 					}
 		        ]);
 		
