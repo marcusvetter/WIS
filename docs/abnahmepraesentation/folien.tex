@@ -64,6 +64,25 @@
 \end{itemize}
 \end{frame}
 
+\begin{frame}
+\frametitle{Ablauf}
+\begin{itemize}
+\item Stimmabgabe
+	\begin{itemize}
+	\item Wähler erhält in Wahllokal Code für Stimmabgabe
+	\item Elektronische Stimmabgabe über Weboberfläche
+	\item Sicherungen gegen falsche oder doppelte Abgabe 
+	\end{itemize}
+\item Ergebnisberechnung
+	\begin{itemize}
+	\item Zyklische Delta-Neugenerierung von Stimmaggregationen
+	\item Ergebnisberechnung auf Basis der Aggregationen
+	\item Teilergebnisse/Hochrechnungen möglich
+	\item Sitzverteilung nach Sainte-Laguë-Verfahren komplett in SQL (Verschachtelte rekursive Views)
+	\end{itemize}
+\end{itemize}
+\end{frame}
+
 
 \begin{frame}
 \frametitle{Vorführung}

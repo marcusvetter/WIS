@@ -1,0 +1,127 @@
+t = 1, n = 10
+---------------------------------------------------------------
+----------------- Statistics of the Benchmark -----------------
+---------------------------------------------------------------
+Simulated Clients: 10
+Website calls per client: 100
+Total website calls: 1000
+---------------------------------------------------------------
+http://localhost:9000/ueberblick/wahlkreise/2 : 78 ms (average), 50 calls
+http://localhost:9000/ueberblick/wahlkreise/10 : 84 ms (average), 50 calls
+http://localhost:9000/ueberblick/wahlkreise/20 : 65 ms (average), 50 calls
+http://localhost:9000/ueberblick/wahlkreise/1 : 67 ms (average), 50 calls
+http://localhost:9000/bundestagsmitglieder : 114 ms (average), 100 calls
+http://localhost:9000/knappegewinner/verlierer/5 : 47 ms (average), 50 calls
+http://localhost:9000/ueberblick/wahlkreise/200 : 98 ms (average), 50 calls
+http://localhost:9000/knappegewinner/verlierer/1 : 50 ms (average), 50 calls
+http://localhost:9000/knappegewinner/gewinner/1 : 37 ms (average), 50 calls
+http://localhost:9000/sitzverteilung : 100 ms (average), 250 calls
+http://localhost:9000/wahlkreissieger : 87 ms (average), 100 calls
+http://localhost:9000/knappegewinner/gewinner/5 : 32 ms (average), 50 calls
+http://localhost:9000/ueberhangmandate : 96 ms (average), 100 calls
+---------------------------------------------------------------
+Total time needed for executing the benchmark client: 1m 28s 77ms
+---------------------------------------------------------------
+
+
+t = 1, n = 20
+---------------------------------------------------------------
+----------------- Statistics of the Benchmark -----------------
+---------------------------------------------------------------
+Simulated Clients: 20
+Website calls per client: 100
+Total website calls: 2000
+---------------------------------------------------------------
+http://localhost:9000/ueberblick/wahlkreise/2 : 475 ms (average), 100 calls
+http://localhost:9000/ueberblick/wahlkreise/10 : 442 ms (average), 100 calls
+http://localhost:9000/ueberblick/wahlkreise/20 : 450 ms (average), 100 calls
+http://localhost:9000/ueberblick/wahlkreise/1 : 449 ms (average), 100 calls
+http://localhost:9000/bundestagsmitglieder : 227 ms (average), 200 calls
+http://localhost:9000/knappegewinner/verlierer/5 : 195 ms (average), 100 calls
+http://localhost:9000/ueberblick/wahlkreise/200 : 435 ms (average), 100 calls
+http://localhost:9000/knappegewinner/verlierer/1 : 176 ms (average), 100 calls
+http://localhost:9000/knappegewinner/gewinner/1 : 170 ms (average), 100 calls
+http://localhost:9000/sitzverteilung : 214 ms (average), 500 calls
+http://localhost:9000/wahlkreissieger : 185 ms (average), 200 calls
+http://localhost:9000/knappegewinner/gewinner/5 : 136 ms (average), 100 calls
+http://localhost:9000/ueberhangmandate : 210 ms (average), 200 calls
+---------------------------------------------------------------
+Total time needed for executing the benchmark client: 1m 47s 188ms
+---------------------------------------------------------------
+
+
+t = 2, n = 20
+---------------------------------------------------------------
+----------------- Statistics of the Benchmark -----------------
+---------------------------------------------------------------
+Simulated Clients: 20
+Website calls per client: 100
+Total website calls: 2000
+---------------------------------------------------------------
+http://localhost:9000/ueberblick/wahlkreise/2 : 63 ms (average), 100 calls
+http://localhost:9000/ueberblick/wahlkreise/10 : 72 ms (average), 100 calls
+http://localhost:9000/ueberblick/wahlkreise/20 : 84 ms (average), 100 calls
+http://localhost:9000/ueberblick/wahlkreise/1 : 88 ms (average), 100 calls
+http://localhost:9000/bundestagsmitglieder : 124 ms (average), 200 calls
+http://localhost:9000/knappegewinner/verlierer/5 : 48 ms (average), 100 calls
+http://localhost:9000/ueberblick/wahlkreise/200 : 62 ms (average), 100 calls
+http://localhost:9000/knappegewinner/verlierer/1 : 67 ms (average), 100 calls
+http://localhost:9000/knappegewinner/gewinner/1 : 45 ms (average), 100 calls
+http://localhost:9000/sitzverteilung : 105 ms (average), 500 calls
+http://localhost:9000/wahlkreissieger : 97 ms (average), 200 calls
+http://localhost:9000/knappegewinner/gewinner/5 : 46 ms (average), 100 calls
+http://localhost:9000/ueberhangmandate : 100 ms (average), 200 calls
+---------------------------------------------------------------
+Total time needed for executing the benchmark client: 2m 48s 66ms
+---------------------------------------------------------------
+
+t = 4, n = 40
+----------------- Statistics of the Benchmark -----------------
+---------------------------------------------------------------
+Simulated Clients: 40
+Website calls per client: 100
+Total website calls: 4000
+---------------------------------------------------------------
+http://localhost:9000/ueberblick/wahlkreise/2 : 122 ms (average), 200 calls
+http://localhost:9000/ueberblick/wahlkreise/10 : 105 ms (average), 200 calls
+http://localhost:9000/ueberblick/wahlkreise/20 : 83 ms (average), 200 calls
+http://localhost:9000/ueberblick/wahlkreise/1 : 71 ms (average), 200 calls
+http://localhost:9000/bundestagsmitglieder : 144 ms (average), 400 calls
+http://localhost:9000/knappegewinner/verlierer/5 : 65 ms (average), 200 calls
+http://localhost:9000/ueberblick/wahlkreise/200 : 87 ms (average), 200 calls
+http://localhost:9000/knappegewinner/verlierer/1 : 59 ms (average), 200 calls
+http://localhost:9000/knappegewinner/gewinner/1 : 48 ms (average), 200 calls
+http://localhost:9000/sitzverteilung : 108 ms (average), 1000 calls
+http://localhost:9000/wahlkreissieger : 107 ms (average), 400 calls
+http://localhost:9000/knappegewinner/gewinner/5 : 57 ms (average), 200 calls
+http://localhost:9000/ueberhangmandate : 108 ms (average), 400 calls
+---------------------------------------------------------------
+Total time needed for executing the benchmark client: 5m 28s 534ms
+---------------------------------------------------------------
+
+
+t = 1, n = 40
+---------------------------------------------------------------
+----------------- Statistics of the Benchmark -----------------
+---------------------------------------------------------------
+Simulated Clients: 40
+Website calls per client: 100
+Total website calls: 4000
+---------------------------------------------------------------
+http://localhost:9000/ueberblick/wahlkreise/2 : 2452 ms (average), 200 calls
+http://localhost:9000/ueberblick/wahlkreise/10 : 2371 ms (average), 200 calls
+http://localhost:9000/ueberblick/wahlkreise/20 : 2357 ms (average), 200 calls
+http://localhost:9000/ueberblick/wahlkreise/1 : 2458 ms (average), 200 calls
+http://localhost:9000/bundestagsmitglieder : 922 ms (average), 400 calls
+http://localhost:9000/knappegewinner/verlierer/5 : 844 ms (average), 200 calls
+http://localhost:9000/ueberblick/wahlkreise/200 : 2330 ms (average), 200 calls
+http://localhost:9000/knappegewinner/verlierer/1 : 851 ms (average), 200 calls
+http://localhost:9000/knappegewinner/gewinner/1 : 922 ms (average), 200 calls
+http://localhost:9000/sitzverteilung : 920 ms (average), 1000 calls
+http://localhost:9000/wahlkreissieger : 891 ms (average), 400 calls
+http://localhost:9000/knappegewinner/gewinner/5 : 832 ms (average), 200 calls
+http://localhost:9000/ueberhangmandate : 867 ms (average), 400 calls
+---------------------------------------------------------------
+Total time needed for executing the benchmark client: 3m 32s 725ms
+---------------------------------------------------------------
+

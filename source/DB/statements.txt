@@ -1,29 +1,4 @@
 -------------------------------------------------
--------- Aggregation auf Wahlkreisebene ---------
--------------------------------------------------
-
-insert into wis_zweitstimmenergebnis 
-select nextval('seq_wis_zweitstimmergebnis') sid, fuerliste, wahlkreis, anzahlstimmen , localtimestamp berechnetam, true "valid", 2 wahl
-from (select zs.fuerliste, wb.wahlkreis, count(*) anzahlstimmen 
-from wis_zweitstimme zs, wis_wahlbezirk wb 
-WHERE zs.abgegebenin = wb.id
-GROUP BY zs.fuerliste, wb.wahlkreis
-) a;
-
-
-insert into wis_erststimmenergebnis 
-select nextval('seq_wis_erststimmergebnis') sid, fuerkandidat, wahlkreis, anzahlstimmen, localtimestamp berechnetam, true "valid" , 2 wahl 
-from (
-	select es.fuerkandidat, wb.wahlkreis, count(*) anzahlstimmen
-	from wis_erststimme es, wis_wahlbezirk wb 
-	WHERE es.abgegebenin = wb.id
-	GROUP BY es.fuerkandidat, wb.wahlkreis
-) a;
-
-
-
-
--------------------------------------------------
 ----------- Berechnung Sitzverteilung -----------
 -------------------------------------------------
 
@@ -181,26 +156,6 @@ create or replace view gewaehlte_bewerber (bundesland, partei, vorname, nachname
 	order by m.bundesland, m.partei, wahlkreis, listenplatz	
 );
 
-create or replace view bundesland_partei_listenplaetze as (
-	select zweitsitze.bundesland, zweitsitze.partei, case when zweitsitze.sitze - coalesce(direkt.anz_direktmandate, 0) < 0 then 0 else zweitsitze.sitze - coalesce(direkt.anz_direktmandate, 0) end as listenplaetze
-	from bundesland_partei_sitze zweitsitze left outer join direktkandidaten_bundesland direkt
-	on zweitsitze.partei = direkt.partei
-	and zweitsitze.bundesland = direkt.bundesland
-);
-
-create or replace view bundesland_partei_listenplaetze_ohne_direktkandidaten as (
-select bundesland, partei, kandidat, row_number() OVER (PARTITION BY bundesland, partei) as listenplatz
-from (select ll.bundesland, ll.partei, kand.id as kandidat, kand.listenplatz
-      from wis_bundestagswahl btwahl, wis_landesliste ll, wis_kandidatur kand
-      where btwahl.jahr = 2009
-      and btwahl.id = ll.wahl
-      and kand.landesliste = ll.id
-      and kand.listenplatz is not null
-      and kand.id not in (select kandidat
-                    from direktkandidaten)
-      order by ll.bundesland, ll.partei, kand.listenplatz) as a
-);
-
 
 -------------------------------------------------
 --------- Berechnung Uebersicht Parteien ---------
@@ -228,7 +183,7 @@ create or replace view partei_erststimmen_zweitstimmen_deutschland as (
 
 
 -----------------------------------------------------------------------
---------- Ergebnisberechnung fuer alle Wahlen (mit Spalte wahl) --------
+-------- Ergebnisberechnung fuer alle Wahlen (mit Spalte wahl) --------
 -----------------------------------------------------------------------
 
 

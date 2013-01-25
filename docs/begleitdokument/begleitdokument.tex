@@ -1,0 +1,54 @@
+\documentclass[11pt,a4paper,DIV11,ngerman]{scrartcl}
+\usepackage[utf8x]{inputenc}
+\usepackage{ucs}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{hyperref}
+%\usepackage[left=1cm, right=0.5cm, bottom=1cm, top=1.5cm]{geometry}
+%\usepackage{stmaryrd}
+
+\begin{document}
+\setlength{\parindent}{0ex}
+
+\title{Begleitdokumentation\\ Datenbankprojekt Wahlinformationssystem \\ WS 2012/2013}
+\author{Marcus Vetter, Sebastian Wöhrl}
+\date{28. Januar 2013}
+
+\maketitle
+
+Dieses Dokument fasst alle nicht in den anderen abgegebenen Dokumenten zu findenden Informationen zu unserer Implementierung des Wahlinformationssystems(WIS) zusammen.
+
+\section{Architektur}
+Das WIS wurde als Serversystem mit browserbasierter Weboberfläche entwickelt um einem möglichst breiten Nutzerkreis den einfachen Zugriff zu ermöglichen.
+
+Auf Serverseite kommt das Webframework Play \footnote{\url{http://www.playframework.org}, Version 2.0} mit einer klassischen Model-View-Controller-Architektur zum Einsatz. Play wurde in Java und Scala entwickelt. Die Controller wurden in Java implementiert, für die Views kommt Scala mit einer in Play integrierten Template-Engine zum Einsatz. Dies ermöglicht, kompakte, einfach verständliche und trotzdem mächtige Funktionen zu entwickeln.
+
+Als Backend kommt eine Postgresql-Datenbank (Version 9.2) zum Einsatz. Dabei wurde sämtliche Logik, die zur Berechnung von Ergebnissen und Analysen benötigt wird, in SQL geschrieben, um somit den größtmöglichen Effizienzgewinn zu erzielen.
+
+\section{Datenpflege}
+Bei den in der Datenbank gespeicherten Daten muss nach statischen (Bundesländer, Wahlkreise, Parteien, Kandidaten) sowie dynamischen (Stimmen) Daten unterschieden werden.
+
+Eine Urladung sowohl mit statischen als auch dynamischen Daten fand mit Hilfe verschiedener Skripte statt, die auf Basis von tabellarischen Daten des Bundeswahlleiters CSV-Import-Dateien generieren, die anschließend in die Datenbank geladen wurden.
+
+Zusätzlich können über das Webinterface ebenfalls Stimmen für die Bundestagswahl 2009 abgegeben werden (Simulation eines Wahlautomaten).
+
+Für die Bundestagwahl 2009 werden alle Stimmen einzeln vorgehalten (d.h. pro abgegebener Stimme gibt es in der Datenbank einen eigenen Datensatz). Da die Ausführung von Analysen auf diesen Einzelstimmen jedoch ineffizient und langsam ist, werden diese nach Wahlkreis und Partei/Kandidat aggregierten Stimmen in speziellen Tabellen vorgehalten. Wird eine neue Stimme über das Webinterface abgegeben, werden die zugehörigen Datensätze der Aggregationstabellen auf ungültig (dirty) gesetzt, sodass sie durch ein regelmäßig zu startendes Wartungsskript neu berechnet werden können. Dieses Verfahren ermöglicht eine schnelle Delta-basierte Neuberechnung der Aggregationen mit minimalem Aufwand. 
+
+
+\section{Performance}
+Die Leistungsfähigkeit unseres Systems haben wir mit einem selbst entwickelten Benchmarktool geprüft.
+Die Ausgabe mehrerer Läufe des Benchmarks mit variierenden Parametern Anzahl Clients und Abstand zwischen Zugriffen findet sich mit in der Abgabe.
+
+Solange das Verhältnis zwischen gleichzeitig zu bearbeitenden Anfragen und vorhandenen CPU-Kernen klein bleibt, bleiben auch die Antwortzeiten nahe an den minimal erreichbaren Werten. Wird die Anzahl gleichzeitiger Anfragen stark erhöht, zeigt sich eine deutliche Verlängerung der Antwortzeiten. Dies liegt darin begründet, dass das Datenbanksystem im Wesentlichen nur eine Abfrage pro CPU-Kern gleichzeitig bearbeiten kann. Der Grund dafür ist, dass - aufgrund eines großen Hauptspeichers und entsprechend großer Puffer und Caches für die Datenbank - praktisch alle Daten im Speicher gehalten werden können. Dadurch entfallen langwierige Zugriffe auf die Festplatte, die es dem Datenbank-Scheduler ermöglichen würden, andere Abfragen auszuführen.
+
+
+
+\section{Datenschutz und Sicherheit}
+Bei der elektronischen Stimmabgabe werden die abgegebenen Stimmen und alle zur ordnungsgemäßen Durchführung der Wahl notwendigen Daten grundsätzlich getrennt und ohne Verknüpfungsmöglichkeit gespeichert, um die Anonymität der Wahl zu sichern. Gleichzeitig werden durch die Ausnutzung der Transaktionseigenschaften des Datenbanksystems doppelte oder falsche Stimmabgaben verhindert.
+
+Genauere Erläuterungen finden sich im beiliegenden Dokument zur Erläuterung der Stimmabgabe.
+
+
+\end{document}
+
