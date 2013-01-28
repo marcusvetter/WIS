@@ -174,7 +174,7 @@ public class Application extends Controller {
 		initializeDataManager();
 		if (session("codecount") != null
 				&& Integer.parseInt(session("codecount")) > 3)
-			return badRequest("Zu viele Fehlversuche");
+			return ok(message.render("Zu viele Fehlversuche"));
 		return ok(ballotcode.render("Stimmzettel - Code eingeben"));
 	}
 
